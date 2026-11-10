@@ -1,0 +1,90 @@
+---
+title: Seventh Chords and Beyond
+module: 3
+number: "3.2"
+summary: Add one more 3rd to a triad and harmony gains color. Sevenths, extensions and sus chords, with the voicings that work on guitar.
+---
+
+## The idea
+
+Stack another 3rd on top of a triad and you get a **7th chord**, the color layer of harmony.
+
+| Chord | Formula | Sound and where it lives |
+|---|---|---|
+| maj7 (Cmaj7) | 1 3 5 7 | Soft, dreamy. Ballads, neo-soul, bedroom pop |
+| 7, "dominant" (C7) | 1 3 5 ♭7 | Bluesy, tense. The whole blues, and the V7 that pulls home |
+| m7 (Cm7) | 1 ♭3 5 ♭7 | Smooth minor. Funk, R&B, mellow rock |
+| m7♭5, "half-diminished" | 1 ♭3 ♭5 ♭7 | Melancholy tension. The ii chord of minor keys |
+| dim7 | 1 ♭3 ♭5 ♭♭7 | Maximum drama, symmetrical. A passing chord |
+| m(maj7) | 1 ♭3 5 7 | Film noir, spy themes |
+
+<chord-explorer root="C" chord="maj7" chords="maj7,7,m7,m7b5,dim7,mMaj7"></chord-explorer>
+
+**Why the dominant 7th pulls so hard.** It contains a **tritone** between its 3rd and its ♭7. In G7 those notes are B and F. The tritone resolves by half steps in opposite directions into the tonic chord: B goes up to C and F goes down to E. That resolution **is** the V7–I cadence.
+
+<progression-player tonic="C" numerals="ii7 V7 Imaj7 Imaj7" tempo="88"></progression-player>
+
+**Extensions (9, 11, 13)** are more stacked 3rds, which is the same as scale degrees 2, 4 and 6 an octave higher. For rock and pop you mostly need:
+
+- **add9** (1 3 5 9): a triad with the 9th added and no 7th. The shimmering pop chord.
+- **m9** and **9**: a 7th chord plus the 9th.
+- The knowledge that you can **leave out the 5th**, and on guitar often the root too. The 3rd and the 7th carry the identity of the chord.
+
+**Sus chords** replace the 3rd with a neighbor: sus2 (1 2 5) and sus4 (1 4 5). With no 3rd they are neither major nor minor: open and ringing. Dsus4 – D – Dsus2 – D is half of the acoustic-rock songbook.
+
+## On your instrument
+
+**Open chords, upgraded.** Every open chord you know is one finger away from its 7th versions. Strings are listed from 6 to 1, and x means "do not play".
+
+| Triad | maj7 | Dominant 7 | Minor | m7 |
+|---|---|---|---|---|
+| C: x32010 | Cmaj7: x32000 | C7: x32310 | | |
+| A: x02220 | Amaj7: x02120 | A7: x02020 | Am: x02210 | Am7: x02010 |
+| D: xx0232 | Dmaj7: xx0222 | D7: xx0212 | Dm: xx0231 | Dm7: xx0211 |
+| E: 022100 | Emaj7: 021100 | E7: 020100 | Em: 022000 | Em7: 020000 |
+| G: 320003 | Gmaj7: 320002 | G7: 320001 | | |
+
+**Shell voicings** use only the root, 3rd and 7th. They sound sophisticated, stay clean under gain, and leave room for a vocal or a lead.
+
+```
+Root on string 5        Root on string 6
+     Cmaj7  C7   Cm7         Gmaj7  G7   Gm7
+G|----4-----3----3----|  G|----4----4----3----|
+D|----2-----2----1----|  D|----4----3----3----|
+A|----3-----3----3----|  A|-------------------|
+E|--------------------|  E|----3----3----3----|
+```
+
+Notice how little changes between the three types: one note moves by one fret each time.
+
+**Piano.** Comp with the root in the left hand and the 3rd and 7th (the "guide tones") in the right. For ii–V–I in C: Dm7 is D with F and C. G7 is G with F and B. Cmaj7 is C with E and B. Only one right-hand note moves at each change.
+
+## Worked example
+
+The same loop, plain and upgraded:
+
+| Version | Chords | Effect |
+|---|---|---|
+| Plain | Am – F – C – G | Solid, anonymous |
+| Upgraded | Am7 – Fmaj7 – Cadd9 – Gsus4 → G | Softer, wider, more personal |
+
+On guitar the upgraded version is easier, not harder: Am7 is x02010, Fmaj7 is xx3210, Cadd9 is x32030, Gsus4 is 320013 resolving to 320003. Several notes ring through all four chords, and that is exactly why it sounds connected.
+
+## Exercises
+
+1. Take Am – F – C – G and play the upgraded version from the worked example. Record both and describe the emotional difference in one sentence.
+2. Find the tritone inside the open G7 shape: B on string 5 and F on string 1. Move each one a half step to its resolution in a C chord. Then find the tritone of E7 (G♯ and D) and resolve it into Am.
+3. Write a four-chord progression where every chord is a sus2, sus4 or add9. This is the shimmering indie and post-rock sound: The Edge, plus delay.
+4. Play a 12-bar blues in A with shell voicings only: A7, D7 and E7.
+
+## Common mistakes
+
+- **Confusing maj7 and 7.** Cmaj7 has B. C7 has B♭. One is a dream and the other is a question.
+- **Confusing add9 and 9.** Cadd9 has no 7th. C9 is a dominant chord with a ♭7 in it, and it has a completely different job.
+- **Using 7th chords everywhere.** Under heavy distortion most of them turn to noise. Module 3.3 covers what works there.
+
+## Check yourself
+
+<quiz-box types="seventh"></quiz-box>
+
+<ear-trainer mode="chords" items="maj7,7,m7"></ear-trainer>

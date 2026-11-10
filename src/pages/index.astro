@@ -1,0 +1,14 @@
+---
+import { DEFAULT_LANG, href } from '../i18n/ui';
+const target = href(`/${DEFAULT_LANG}/`);
+---
+<!doctype html>
+<html lang="uk">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="refresh" content={`0; url=${target}`} />
+    <link rel="canonical" href={target} />
+    <title>Від теорії до пісень</title>
+  </head>
+  <body><p><a href={target}>Від теорії до пісень / From Theory to Songs</a></p></body>
+</html>

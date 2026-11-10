@@ -1,0 +1,51 @@
+---
+import Base from '../../layouts/Base.astro';
+import { LANGS, ui, type Lang } from '../../i18n/ui';
+
+export function getStaticPaths() { return LANGS.map(lang => ({ params: { lang } })); }
+const lang = Astro.params.lang as Lang;
+const s = ui[lang];
+---
+<Base lang={lang} title={s.tools} path="/tools/">
+  <article class="lesson tools">
+    <h1>{s.tools}</h1>
+    <p class="lede">{s.toolsIntro}</p>
+    <div class="prose">
+      <h2>{s.tEar}</h2>
+      <h3>{s.tIntervals}</h3>
+      <ear-trainer mode="intervals"></ear-trainer>
+      <h3>{s.tChords}</h3>
+      <ear-trainer mode="chords"></ear-trainer>
+      <h3>{s.tSevenths}</h3>
+      <ear-trainer mode="chords" items="maj7,7,m7,m7b5,dim7"></ear-trainer>
+      <h3>{s.tScales}</h3>
+      <ear-trainer mode="scales"></ear-trainer>
+      <h3>{s.tProgs}</h3>
+      <ear-trainer mode="progressions"></ear-trainer>
+
+      <h2>{s.tExplore}</h2>
+      <h3>{s.tIntervalEx}</h3>
+      <interval-explorer root="C" interval="P5"></interval-explorer>
+      <h3>{s.tScaleEx}</h3>
+      <scale-explorer root="A" scale="minorPentatonic"></scale-explorer>
+      <h3>{s.tChordEx}</h3>
+      <chord-explorer root="C" chord="maj"></chord-explorer>
+      <h3>{s.tCircle}</h3>
+      <circle-of-fifths tonic="C"></circle-of-fifths>
+
+      <h2>{s.tPlay}</h2>
+      <h3>{s.tProgPlayer}</h3>
+      <progression-player tonic="C" numerals="I V vi IV" presets editable></progression-player>
+      <h3>{s.tMetronome}</h3>
+      <metro-nome bpm="80"></metro-nome>
+      <h3>{s.tBeat}</h3>
+      <beat-grid preset="syncopated" riff></beat-grid>
+
+      <h2>{s.tQuiz}</h2>
+      <h3>{s.tQuizIntervals}</h3>
+      <quiz-box types="interval-up,interval-name,triad,seventh,scale-notes"></quiz-box>
+      <h3>{s.tQuizHarmony}</h3>
+      <quiz-box types="diatonic,diatonic-minor,numeral,degree,keysig,relative,function,signature"></quiz-box>
+    </div>
+  </article>
+</Base>

@@ -1,0 +1,92 @@
+---
+title: The Modes, Demystified
+module: 2
+number: "2.5"
+summary: Seven scales from one set of notes. Each mode is one signature note away from plain major or minor.
+---
+
+## The idea
+
+Modes are the seven scales you get by treating each degree of the major scale as home. The notes are the same. The center of gravity is different, and the center of gravity is everything.
+
+The useful way to know them is as **alterations of major or minor**. Sorted from brightest to darkest:
+
+| Mode | Formula | Think of it as | Sound and where you hear it |
+|---|---|---|---|
+| Lydian | 1 2 3 ♯4 5 6 7 | Major with ♯4 | Dreamy, floating. Film scores, Joe Satriani's "Flying in a Blue Dream" |
+| Ionian | 1 2 3 4 5 6 7 | Plain major | Daylight. Pop |
+| Mixolydian | 1 2 3 4 5 6 ♭7 | Major with ♭7 | Rock and roll major. AC/DC, "Sweet Child O' Mine", any I–♭VII rock |
+| Dorian | 1 2 ♭3 4 5 6 ♭7 | Minor with natural 6 | Cool, hopeful minor. Santana's "Oye Como Va", the solo of "Another Brick in the Wall, Part 2" |
+| Aeolian | 1 2 ♭3 4 5 ♭6 ♭7 | Plain natural minor | Default rock and metal sadness |
+| Phrygian | 1 ♭2 ♭3 4 5 ♭6 ♭7 | Minor with ♭2 | Dark, Spanish, aggressive. Thrash and death metal riffs, flamenco |
+| Locrian | 1 ♭2 ♭3 4 ♭5 ♭6 ♭7 | Minor with ♭2 and ♭5 | Unstable, with no perfect 5th. Rare as a key, a color in extreme metal |
+
+**One note each.** Lydian is the ♯4. Mixolydian is the ♭7. Dorian is the natural 6 in a minor scale. Phrygian is the ♭2. Learn to hear that one note against the tonic and you own the mode.
+
+Turn on the drone, pick a mode, and play it over the low E. Switch modes while the drone keeps ringing:
+
+<scale-explorer root="E" scale="aeolian" scales="lydian,ionian,mixolydian,dorian,aeolian,phrygian,locrian,phrygianDominant"></scale-explorer>
+
+> **The trap.** Playing "D Dorian" over a C major progression is not Dorian. It is C major. A mode only exists when the **harmony or a drone makes its root sound like home**. Dorian happens over a Dm chord or a Dm–G vamp, not over C.
+
+**Modal vamps.** A mode needs harmony that shows its signature note without pulling to a different tonic. Two-chord vamps do this best:
+
+| Mode | Typical vamp | In a guitar key |
+|---|---|---|
+| Dorian | i – IV | Am – D |
+| Mixolydian | I – ♭VII | D – C |
+| Phrygian | i – ♭II | Em – F |
+| Lydian | I – II | G – A |
+| Aeolian | i – ♭VI – ♭VII | Am – F – G |
+
+Try them. The player accepts any numerals:
+
+<progression-player tonic="A" numerals="i IV i IV" tempo="96" editable></progression-player>
+
+## On your instrument
+
+The drone method beats memorizing seven patterns. You already have the patterns, because they are major-scale patterns. What you are learning is the sound.
+
+Loop a low E drone, or chug an E5 power chord. Over it, play E Aeolian for a minute. Then raise C to C♯ and you are in E Dorian. Go back, lower F♯ to F, and you are in E Phrygian. Same drone, three worlds.
+
+**Metal notes.** Phrygian riffs live on the ♭2: a low F against the E chug. Raise the 3rd of Phrygian and you get **Phrygian dominant** (1 ♭2 3 4 5 ♭6 ♭7). It is the 5th mode of harmonic minor and the definitive exotic-metal scale.
+
+## Worked example
+
+Four one-bar riffs over the same open E chug. Only the signature note changes:
+
+```
+                 1 & 2 & 3 & 4 &
+Aeolian      A|------3-2-------2-|     the ♭6 (C) falling to 5
+             E|--0-0-----0-0-0---|
+
+Dorian       A|------4-2-------5-|     the natural 6 (C♯)
+             E|--0-0-----0-0-0---|
+
+Phrygian     A|------------------|     the ♭2 (F)
+             E|--0-0-1-0-0-3-1-0-|
+
+Phrygian     A|------------------|     the ♭2 (F) with the major 3rd (G♯)
+dominant     E|--0-0-1-0-0-4-1-0-|
+```
+
+Play all four in a row. The rhythm and the root never change, yet each bar belongs to a different genre.
+
+## Exercises
+
+1. The drone exercise: all seven modes from E, one minute each, three sessions this week. Say the signature note out loud each time you land on it.
+2. Write four 2-bar riffs over an E5 chug: one Aeolian, one Dorian, one Phrygian, one Phrygian dominant. Mark the signature note of each in your tab.
+3. Pop application: write a I–♭VII–IV progression (for example D–C–G) and a melody in D Mixolydian. The ♭7 in the melody (C natural) is the classic-rock sound, dissected.
+4. Use the trainer below until you can tell the six modes apart by ear.
+
+## Common mistakes
+
+- **Thinking of modes as positions.** "Dorian is the second box of the major scale" is true and useless. Dorian is a minor scale with a bright 6.
+- **Avoiding the signature note.** If you never play the ♭2, nobody can tell you are in Phrygian.
+- **Changing mode without changing harmony.** The chords, the bass or a drone must agree with you.
+
+## Check yourself
+
+<ear-trainer mode="scales" items="lydian,ionian,mixolydian,dorian,aeolian,phrygian"></ear-trainer>
+
+<quiz-box types="signature"></quiz-box>

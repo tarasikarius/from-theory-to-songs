@@ -1,0 +1,52 @@
+---
+import Base from '../../layouts/Base.astro';
+import { LANGS, ui, moduleTitles, href, type Lang } from '../../i18n/ui';
+import { getLessons, byModule } from '../../lib/course';
+
+export function getStaticPaths() { return LANGS.map(lang => ({ params: { lang } })); }
+const lang = Astro.params.lang as Lang;
+const s = ui[lang];
+const lessons = await getLessons(lang);
+const groups = byModule(lessons);
+const count = lessons.filter(l => l.data.module >= 1 && l.data.module <= 10).length;
+---
+<Base lang={lang} path="/">
+  <section class="hero">
+    <p class="eyebrow">10 {s.module.toLowerCase()} · {count} {s.lessons}</p>
+    <h1>{s.siteTitle}</h1>
+    <p class="lede">{s.tagline}</p>
+    <p class="aud">{s.audience}</p>
+    {lessons[0] && <a class="cta" href={href(`/${lang}/lessons/${lessons[0].slug}/`)}>{s.start}</a>}
+    <a class="cta ghost" href={href(`/${lang}/tools/`)}>{s.tools}</a>
+  </section>
+
+  <section class="how" aria-label={s.homeHow}>
+    <div><span class="step">1</span><h3>{s.homeHow1}</h3><p>{s.homeHow1d}</p></div>
+    <div><span class="step">2</span><h3>{s.homeHow2}</h3><p>{s.homeHow2d}</p></div>
+    <div><span class="step">3</span><h3>{s.homeHow3}</h3><p>{s.homeHow3d}</p></div>
+  </section>
+
+  <section class="contents">
+    <h2>{s.contents}</h2>
+    <ol class="modules">
+      {groups.map(g => (
+        <li class="module">
+          <h3>
+            {g.module >= 1 && g.module <= 10 && <span class="mnum">{s.module} {g.module}</span>}
+            {moduleTitles[lang][g.module]}
+          </h3>
+          <ul>
+            {g.lessons.map(l => (
+              <li>
+                <a href={href(`/${lang}/lessons/${l.slug}/`)}>
+                  {l.data.number && <span class="lnum">{l.data.number}</span>}
+                  <span>{l.data.title}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </li>
+      ))}
+    </ol>
+  </section>
+</Base>

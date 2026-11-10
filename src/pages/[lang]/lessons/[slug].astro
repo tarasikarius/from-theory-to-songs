@@ -1,0 +1,69 @@
+---
+import { render } from 'astro:content';
+import Base from '../../../layouts/Base.astro';
+import { LANGS, ui, moduleTitles, href, type Lang } from '../../../i18n/ui';
+import { getLessons, byModule, type Lesson } from '../../../lib/course';
+
+export async function getStaticPaths() {
+  const paths: { params: { lang: Lang; slug: string }; props: { lesson: Lesson; prev: Lesson | null; next: Lesson | null; lessons: Lesson[] } }[] = [];
+  for (const lang of LANGS) {
+    const lessons = await getLessons(lang);
+    lessons.forEach((lesson, i) => paths.push({
+      params: { lang, slug: lesson.slug },
+      props: { lesson, prev: lessons[i - 1] ?? null, next: lessons[i + 1] ?? null, lessons },
+    }));
+  }
+  return paths;
+}
+const lang = Astro.params.lang as Lang;
+const { lesson, prev, next, lessons } = Astro.props;
+const s = ui[lang];
+const { Content } = await render(lesson);
+const groups = byModule(lessons);
+const m = lesson.data.module;
+---
+<Base lang={lang} title={lesson.data.title} description={lesson.data.summary} path={`/lessons/${lesson.slug}/`}>
+  <div class="lesson-layout">
+    <aside class="sidebar">
+      <details class="toc">
+        <summary>{s.toc}</summary>
+        <nav aria-label={s.toc}>
+          {groups.map(g => (
+            <div class="toc-group">
+              <p class="toc-title">{g.module >= 1 && g.module <= 10 ? `${g.module}. ` : ''}{moduleTitles[lang][g.module]}</p>
+              <ul>
+                {g.lessons.map(l => (
+                  <li>
+                    <a href={href(`/${lang}/lessons/${l.slug}/`)} aria-current={l.slug === lesson.slug ? 'page' : undefined}>
+                      {l.data.number && <span class="lnum">{l.data.number}</span>}{l.data.title}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </nav>
+      </details>
+    </aside>
+    <article class="lesson">
+      <p class="eyebrow">
+        {m >= 1 && m <= 10 ? `${s.module} ${m} · ${moduleTitles[lang][m]}` : moduleTitles[lang][m]}
+      </p>
+      <h1>{lesson.data.number && m <= 10 && <span class="hnum">{lesson.data.number}</span>}{lesson.data.title}</h1>
+      {lesson.data.summary && <p class="lede">{lesson.data.summary}</p>}
+      <div class="prose"><Content /></div>
+      <nav class="pager" aria-label="Pagination">
+        {prev ? <a class="prev" href={href(`/${lang}/lessons/${prev.slug}/`)}><small>← {s.prev}</small><span>{prev.data.title}</span></a> : <span />}
+        {next ? <a class="next" href={href(`/${lang}/lessons/${next.slug}/`)}><small>{s.next} →</small><span>{next.data.title}</span></a> : <span />}
+      </nav>
+    </article>
+  </div>
+  <script is:inline>
+    (function () {
+      var d = document.querySelector('details.toc');
+      if (d && matchMedia('(min-width: 960px)').matches) d.open = true;
+      var cur = d && d.querySelector('[aria-current="page"]');
+      if (cur && d.open) cur.scrollIntoView({ block: 'center' });
+    })();
+  </script>
+</Base>
