@@ -1,0 +1,14 @@
+[
+  { "id": 0, "en": "Introduction", "uk": "Вступ" },
+  { "id": 1, "en": "Intervals: The Atoms of Music", "uk": "Інтервали: атоми музики" },
+  { "id": 2, "en": "Scales: Your Melodic Vocabulary", "uk": "Гами: ваш мелодичний словник" },
+  { "id": 3, "en": "Chords: Building Every Chord You Need", "uk": "Акорди: як побудувати будь-який акорд" },
+  { "id": 4, "en": "Diatonic Harmony: How Chords Work Together", "uk": "Діатонічна гармонія: як акорди працюють разом" },
+  { "id": 5, "en": "Rhythm, Meter and Riffcraft", "uk": "Ритм, метр і мистецтво рифу" },
+  { "id": 6, "en": "Melody: Writing Lines People Remember", "uk": "Мелодія: лінії, які запам’ятовуються" },
+  { "id": 7, "en": "Song Form and Structure", "uk": "Форма та структура пісні" },
+  { "id": 8, "en": "Beyond the Key: Color, Borrowed Chords and Modulation", "uk": "За межами тональності: барви, запозичені акорди й модуляція" },
+  { "id": 9, "en": "Arrangement and Production Thinking", "uk": "Аранжування та продюсерське мислення" },
+  { "id": 10, "en": "Lyrics and the Complete Songwriting Workflow", "uk": "Тексти та повний процес написання пісні" },
+  { "id": 11, "en": "Appendices", "uk": "Додатки" }
+]

@@ -18,7 +18,11 @@ export async function getStaticPaths() {
 const lang = Astro.params.lang as Lang;
 const { lesson, prev, next, lessons } = Astro.props;
 const s = ui[lang];
-const { Content } = await render(lesson);
+const { Content, headings } = await render(lesson);
+const sections = headings.filter(h => h.depth === 2);
+const pad = (n: number) => String(n).padStart(2, '0');
+const [titleMain, ...titleRest] = lesson.data.title.split(': ');
+const titleSub = titleRest.join(': ');
 const groups = byModule(lessons);
 const m = lesson.data.module;
 ---
@@ -46,11 +50,17 @@ const m = lesson.data.module;
       </details>
     </aside>
     <article class="lesson">
-      <p class="eyebrow">
-        {m >= 1 && m <= 10 ? `${s.module} ${m} · ${moduleTitles[lang][m]}` : moduleTitles[lang][m]}
+      <p class="crumbs mono">
+        <span>{m >= 1 && m <= 10 ? `${s.module} ${pad(m)} · ${moduleTitles[lang][m]}` : moduleTitles[lang][m]}</span>
+        {lesson.data.number && m <= 10 && <span>{s.lesson} {lesson.data.number}</span>}
       </p>
-      <h1>{lesson.data.number && m <= 10 && <span class="hnum">{lesson.data.number}</span>}{lesson.data.title}</h1>
+      <h1>{titleSub ? <Fragment>{titleMain}: <span class="serif">{titleSub}</span></Fragment> : titleMain}</h1>
       {lesson.data.summary && <p class="lede">{lesson.data.summary}</p>}
+      {sections.length > 1 && (
+        <nav class="lesson-nav" aria-label={s.inLesson}>
+          {sections.map((h, i) => <a href={`#${h.slug}`}><span class="nav-num">{pad(i + 1)}</span>{h.text}</a>)}
+        </nav>
+      )}
       <div class="prose"><Content /></div>
       <nav class="pager" aria-label="Pagination">
         {prev ? <a class="prev" href={href(`/${lang}/lessons/${prev.slug}/`)}><small>← {s.prev}</small><span>{prev.data.title}</span></a> : <span />}

@@ -1,0 +1,15 @@
+[
+  { "id": "P1", "semis": 0, "steps": 1, "en": "Perfect unison", "uk": "Чиста прима" },
+  { "id": "m2", "semis": 1, "steps": 2, "en": "Minor 2nd", "uk": "Мала секунда" },
+  { "id": "M2", "semis": 2, "steps": 2, "en": "Major 2nd", "uk": "Велика секунда" },
+  { "id": "m3", "semis": 3, "steps": 3, "en": "Minor 3rd", "uk": "Мала терція" },
+  { "id": "M3", "semis": 4, "steps": 3, "en": "Major 3rd", "uk": "Велика терція" },
+  { "id": "P4", "semis": 5, "steps": 4, "en": "Perfect 4th", "uk": "Чиста кварта" },
+  { "id": "TT", "semis": 6, "steps": 4, "en": "Tritone", "uk": "Тритон" },
+  { "id": "P5", "semis": 7, "steps": 5, "en": "Perfect 5th", "uk": "Чиста квінта" },
+  { "id": "m6", "semis": 8, "steps": 6, "en": "Minor 6th", "uk": "Мала секста" },
+  { "id": "M6", "semis": 9, "steps": 6, "en": "Major 6th", "uk": "Велика секста" },
+  { "id": "m7", "semis": 10, "steps": 7, "en": "Minor 7th", "uk": "Мала септима" },
+  { "id": "M7", "semis": 11, "steps": 7, "en": "Major 7th", "uk": "Велика септима" },
+  { "id": "P8", "semis": 12, "steps": 8, "en": "Perfect octave", "uk": "Чиста октава" }
+]

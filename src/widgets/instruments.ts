@@ -9,6 +9,13 @@ export type LabelMode = 'degree' | 'note';
 
 const SHARP_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
+/** CSS class that picks the degree colour for a mark label: '1' → d1, 'b3' and 'M3' → d3, '9' → d2, 'P8' → d1, 'TT' → d5. */
+export function degreeClass(label: string): string {
+  if (label === 'TT') return 'd5';
+  const n = parseInt(label.replace(/\D/g, ''), 10);
+  return n ? `d${((n - 1) % 7) + 1}` : '';
+}
+
 abstract class Instrument extends HTMLElement {
   marks: Marks = new Map();
   labelMode: LabelMode = 'degree';
@@ -80,7 +87,7 @@ export class FretBoard extends Instrument {
         const cx = f === 0 ? padL - 17 : x(f) - fretW / 2;
         const mark = this.markFor(midi);
         const g = s('g', {
-          class: 'fb-pos' + (mark ? ' is-on' : '') + (mark && mark.index === 0 ? ' is-root' : ''),
+          class: 'fb-pos' + (mark ? ` is-on ${degreeClass(mark.label)}` : '') + (mark && mark.index === 0 ? ' is-root' : ''),
           'data-midi': midi, tabindex: mark ? 0 : -1, role: 'button',
           'aria-label': `${SHARP_NAMES[midiToPc(midi)]}, string ${6 - str}, fret ${f}`,
           onClick: () => { playNote(midi, { voice: 'pluck' }); this.flash(midi); },
@@ -115,7 +122,7 @@ export class PianoKeys extends Instrument {
       const mark = this.markFor(midi);
       const w = black ? blackW : whiteW, hh = black ? blackH : H;
       const g = s('g', {
-        class: `pk-key ${black ? 'pk-black' : 'pk-white'}` + (mark ? ' is-on' : '') + (mark && mark.index === 0 ? ' is-root' : ''),
+        class: `pk-key ${black ? 'pk-black' : 'pk-white'}` + (mark ? ` is-on ${degreeClass(mark.label)}` : '') + (mark && mark.index === 0 ? ' is-root' : ''),
         'data-midi': midi, role: 'button', tabindex: mark ? 0 : -1, 'aria-label': SHARP_NAMES[midiToPc(midi)],
         onClick: () => { playNote(midi, { voice: 'keys' }); this.flash(midi); },
         onKeydown: (e: KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); playNote(midi, { voice: 'keys' }); this.flash(midi); } },

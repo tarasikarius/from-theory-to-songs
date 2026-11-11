@@ -1,6 +1,6 @@
 // <scale-explorer>, <chord-explorer>, <interval-explorer>, <circle-of-fifths>
 import {
-  CHORDS, CIRCLE_MAJOR, ROOTS, SCALES, SIMPLE_INTERVALS, chordMidi, chordNotes, chordSymbol, diatonicChords,
+  CHORDS, CIRCLE_MAJOR, ROOTS, SCALES, SIMPLE_INTERVALS, simpleInterval, chordMidi, chordNotes, chordSymbol, diatonicChords,
   keySignature, noteName, noteToMidi, parseNote, pc, pcMap, pretty, relativeMinor, scaleNotes, transposeBy,
   type Note,
 } from '../lib/theory';
@@ -143,11 +143,8 @@ export class ChordExplorer extends Widget {
   }
 }
 
-const IV_SEMIS: Record<string, number> = { P1: 0, m2: 1, M2: 2, m3: 3, M3: 4, P4: 5, TT: 6, P5: 7, m6: 8, M6: 9, m7: 10, M7: 11, P8: 12 };
-const IV_STEPS: Record<string, number> = { P1: 1, m2: 2, M2: 2, m3: 3, M3: 3, P4: 4, TT: 4, P5: 5, m6: 6, M6: 6, m7: 7, M7: 7, P8: 8 };
-
 export function intervalTarget(root: Note, id: string): Note {
-  return transposeBy(root, { num: IV_STEPS[id], semis: IV_SEMIS[id] });
+  return transposeBy(root, simpleInterval(id));
 }
 
 export class IntervalExplorer extends Widget {
@@ -156,7 +153,7 @@ export class IntervalExplorer extends Widget {
     let iv = this.attr('interval', 'P5');
     const info = h('p', { class: 'w-info', 'aria-live': 'polite' });
     const buttons = h('div', { class: 'w-chips', role: 'group', 'aria-label': t('interval') });
-    const pair = () => { const b = rootMidi(parseNote(root), 48); return [b, b + IV_SEMIS[iv]]; };
+    const pair = () => { const b = rootMidi(parseNote(root), 48); return [b, b + simpleInterval(iv).semis]; };
     for (const id of SIMPLE_INTERVALS) {
       buttons.append(h('button', {
         type: 'button', class: 'w-chip', 'data-id': id, title: t('i.' + id),
@@ -182,7 +179,7 @@ export class IntervalExplorer extends Widget {
         b.classList.toggle('is-active', on);
         b.setAttribute('aria-pressed', String(on));
       });
-      const n = IV_SEMIS[iv];
+      const n = simpleInterval(iv).semis;
       info.replaceChildren(
         h('strong', {}, `${t('i.' + iv)} (${iv})`), ' — ',
         h('span', { class: 'w-mono' }, `${pretty(noteName(r))} → ${pretty(noteName(target))}`),

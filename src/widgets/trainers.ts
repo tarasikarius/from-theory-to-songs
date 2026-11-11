@@ -1,7 +1,7 @@
 // <ear-trainer> and <quiz-box>
 import {
   chordMidi, chordNotes, chordSymbol, diatonicChords, intervalName, keySignature, noteName,
-  parseNote, pc, pretty, relativeMinor, romanToChord, scaleNotes, type Note,
+  parseNote, pc, pretty, relativeMinor, romanToChord, scaleNotes, SIMPLE_INTERVALS, simpleInterval, type Note,
 } from '../lib/theory';
 import { now, playChord, playNote, playSequence } from '../lib/audio';
 import { Widget, button, field, h, pick, select, shuffle } from './dom';
@@ -9,7 +9,8 @@ import { intervalTarget, rootMidi } from './explorers';
 import { voice } from './players';
 import { t } from './strings';
 
-const IV_SEMIS: Record<string, number> = { m2: 1, M2: 2, m3: 3, M3: 4, P4: 5, TT: 6, P5: 7, m6: 8, M6: 9, m7: 10, M7: 11, P8: 12 };
+/** Interval ids used by the trainers: every simple interval except the unison. */
+const EAR_INTERVALS = SIMPLE_INTERVALS.filter(i => i !== 'P1');
 const DEFAULT_PROGS = ['I V vi IV', 'I IV V IV', 'I vi IV V', 'vi IV I V', 'i bVII bVI bVII', 'I bVII IV I'];
 const KEYS = ['C', 'G', 'D', 'A', 'E', 'F', 'Bb', 'Eb'];
 
@@ -19,7 +20,7 @@ export class EarTrainer extends Widget {
   build() {
     const mode = this.attr('mode', 'intervals');
     const defaults: Record<string, string[]> = {
-      intervals: Object.keys(IV_SEMIS), chords: ['maj', 'min', 'dim', 'aug'],
+      intervals: EAR_INTERVALS, chords: ['maj', 'min', 'dim', 'aug'],
       scales: ['major', 'naturalMinor', 'dorian', 'phrygian', 'mixolydian', 'lydian'], progressions: DEFAULT_PROGS,
     };
     const items = mode === 'progressions'
@@ -38,7 +39,7 @@ export class EarTrainer extends Widget {
 
     const playItem = (id: string, root: number, rootNote: Note) => {
       if (mode === 'intervals') {
-        const pair = [root, root + IV_SEMIS[id]];
+        const pair = [root, root + simpleInterval(id).semis];
         if (direction === 'together') playChord(pair, { voice: 'keys', strum: 0, dur: 1.8 });
         else playSequence(direction === 'down' ? pair.reverse() : pair, 0.55, { voice: 'keys', dur: 1.1 });
       } else if (mode === 'chords') {
@@ -129,7 +130,7 @@ function options(answer: string, pool: string[], n = 4): string[] {
 const GENERATORS: Record<string, () => Quiz> = {
   'interval-up': () => {
     const root = parseNote(pick(['C', 'D', 'E', 'F', 'G', 'A', 'B', 'Bb', 'Eb', 'F#']));
-    const ivs = Object.keys(IV_SEMIS).filter(i => i !== 'TT' && i !== 'P8');
+    const ivs = EAR_INTERVALS.filter(i => i !== 'TT' && i !== 'P8');
     const iv = pick(ivs);
     const ans = pretty(noteName(intervalTarget(root, iv)));
     const pool = ivs.map(i => pretty(noteName(intervalTarget(root, i))));
@@ -137,7 +138,7 @@ const GENERATORS: Record<string, () => Quiz> = {
   },
   'interval-name': () => {
     const root = parseNote(pick(['C', 'D', 'E', 'F', 'G', 'A', 'B', 'Bb', 'Eb']));
-    const ivs = Object.keys(IV_SEMIS).filter(i => i !== 'TT' && i !== 'P8');
+    const ivs = EAR_INTERVALS.filter(i => i !== 'TT' && i !== 'P8');
     const iv = pick(ivs);
     const target = intervalTarget(root, iv);
     const ans = intervalName(root, target);

@@ -1,4 +1,5 @@
 // Small music-theory core: spelled notes, intervals, scales, chords, roman numerals.
+import intervalData from '../data/intervals.json';
 
 export interface Note { letter: number; acc: number } // letter 0..6 = C..B, acc in semitones
 
@@ -89,8 +90,16 @@ export function intervalName(a: Note, b: Note): string {
   return q + num;
 }
 
-/** The 13 common intervals by semitone count, as used in lesson 1.1. */
-export const SIMPLE_INTERVALS = ['P1', 'm2', 'M2', 'm3', 'M3', 'P4', 'TT', 'P5', 'm6', 'M6', 'm7', 'M7', 'P8'];
+/** The 13 common intervals by semitone count, as used in lesson 1.1 (src/data/intervals.json). */
+export const INTERVALS: readonly { id: string; semis: number; steps: number; en: string; uk: string }[] = intervalData;
+export const SIMPLE_INTERVALS = INTERVALS.map(i => i.id);
+
+/** Interval for one of the SIMPLE_INTERVALS ids. Unlike parseInterval it also knows "TT" (the tritone, spelled as an A4). */
+export function simpleInterval(id: string): Interval {
+  const iv = INTERVALS.find(i => i.id === id);
+  if (!iv) throw new Error(`Unknown interval: ${id}`);
+  return { num: iv.steps, semis: iv.semis };
+}
 
 // ---------- Degrees, scales ----------
 

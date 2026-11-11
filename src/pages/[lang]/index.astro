@@ -1,6 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { LANGS, ui, moduleTitles, href, type Lang } from '../../i18n/ui';
+import { LANGS, ui, moduleTitles, href, lessonsCount, type Lang } from '../../i18n/ui';
 import { getLessons, byModule } from '../../lib/course';
 
 export function getStaticPaths() { return LANGS.map(lang => ({ params: { lang } })); }
@@ -9,31 +9,101 @@ const s = ui[lang];
 const lessons = await getLessons(lang);
 const groups = byModule(lessons);
 const count = lessons.filter(l => l.data.module >= 1 && l.data.module <= 10).length;
+const pad = (n: number) => String(n).padStart(2, '0');
+
+// The site title with its last word set in the serif italic.
+const words = s.siteTitle.split(' ');
+const titleLast = words.pop();
+const titleStart = words.join(' ');
+
+// First five harmonics of the open A string (110 Hz): A, A, E, A, C♯.
+// cls picks the degree colour: h1 = root, h5 = fifth, h3 = major third.
+const up = (t: string) => t.toLocaleUpperCase(lang);
+const harmonics = [
+  { n: 1, y: 60, c: 60, lobes: 1, cls: 'h1', label: `${up(s.hRoot)} · A` },
+  { n: 2, y: 150, c: 50, lobes: 2, cls: 'h1', label: `${up(s.hOctave)} · A` },
+  { n: 3, y: 240, c: 44, lobes: 3, cls: 'h5', label: `${up(s.hFifth)} · E` },
+  { n: 4, y: 330, c: 38, lobes: 4, cls: 'h1', label: `${up(s.hRoot)} · A` },
+  { n: 5, y: 420, c: 34, lobes: 5, cls: 'h3', label: `${up(s.hThird)} · C♯` },
+].map(h => {
+  const w = 420 / h.lobes;
+  const tail = Array.from({ length: h.lobes - 1 }, (_, i) => ` T${w * (i + 2)} ${h.y}`).join('');
+  const wave = (dir: number) => `M0 ${h.y} Q${w / 2} ${h.y + dir * h.c} ${w} ${h.y}${tail}`;
+  return {
+    ...h,
+    upper: wave(-1),
+    lower: wave(1),
+    nodes: Array.from({ length: h.lobes - 1 }, (_, i) => w * (i + 1)),
+    hz: `${h.n}× ${110 * h.n} ${s.hz}`,
+  };
+});
 ---
 <Base lang={lang} path="/">
-  <section class="hero">
-    <p class="eyebrow">10 {s.module.toLowerCase()} · {count} {s.lessons}</p>
-    <h1>{s.siteTitle}</h1>
-    <p class="lede">{s.tagline}</p>
-    <p class="aud">{s.audience}</p>
-    {lessons[0] && <a class="cta" href={href(`/${lang}/lessons/${lessons[0].slug}/`)}>{s.start}</a>}
-    <a class="cta ghost" href={href(`/${lang}/tools/`)}>{s.tools}</a>
-  </section>
+  <div class="stage">
+    <p class="meta-strip mono">
+      <span>{s.metaAudience}</span>
+      <span>{s.modulesCount} · {lessonsCount(lang, count)} · {s.toolsCount}</span>
+      <span>{s.metaString}</span>
+    </p>
+
+    <section class="hero">
+      <div class="hero-copy">
+        <h1>{titleStart} <span class="serif">{titleLast}</span></h1>
+        <p class="lede">{s.tagline}</p>
+        <p class="aud">{s.audience}</p>
+        {lessons[0] && <a class="cta" href={href(`/${lang}/lessons/${lessons[0].slug}/`)}>{s.start} <span aria-hidden="true">→</span></a>}
+        <a class="cta ghost" href={href(`/${lang}/tools/`)}>{s.tools}</a>
+      </div>
+
+      <figure class="hero-fig">
+        <svg class="hw" viewBox="-10 20 800 440" role="img" aria-label={s.figAlt}>
+          <line class="hw-end" x1="0" y1="24" x2="0" y2="456" />
+          <line class="hw-end" x1="420" y1="24" x2="420" y2="456" />
+          {harmonics.map(h => (
+            <g>
+              <path class={h.cls} d={h.upper} />
+              <path class={`${h.cls} ghost`} d={h.lower} />
+              {h.nodes.map(x => <circle class="hw-node" cx={x} cy={h.y} r="4" />)}
+              <line class="hw-end" x1="428" y1={h.y} x2="450" y2={h.y} />
+              <rect class={`hw-pill ${h.cls}`} x="450" y={h.y - 19} width="224" height="38" rx="19" />
+              <text class="hw-label" x="562" y={h.y + 5}>{h.label}</text>
+              <text class="hw-hz" x="686" y={h.y + 5}>{h.hz}</text>
+            </g>
+          ))}
+        </svg>
+        <figcaption>
+          <p class="hero-cap">{s.heroCaption}</p>
+          <p class="mono">{s.heroCaptionSub}</p>
+        </figcaption>
+      </figure>
+    </section>
+
+    <p class="legend mono">
+      <strong>{s.legendTitle}</strong>
+      <span><i class="deg d1"></i>1 {s.legendRoot}</span>
+      {[2, 3, 4, 5, 6, 7].map(d => <span><i class={`deg d${d}`}></i>{d}</span>)}
+    </p>
+  </div>
 
   <section class="how" aria-label={s.homeHow}>
-    <div><span class="step">1</span><h3>{s.homeHow1}</h3><p>{s.homeHow1d}</p></div>
-    <div><span class="step">2</span><h3>{s.homeHow2}</h3><p>{s.homeHow2d}</p></div>
-    <div><span class="step">3</span><h3>{s.homeHow3}</h3><p>{s.homeHow3d}</p></div>
+    <div><span class="step">01 / {s.stepRead}</span><h3>{s.homeHow1}</h3><p>{s.homeHow1d}</p></div>
+    <div><span class="step">02 / {s.stepHear}</span><h3>{s.homeHow2}</h3><p>{s.homeHow2d}</p></div>
+    <div><span class="step">03 / {s.stepPlay}</span><h3>{s.homeHow3}</h3><p>{s.homeHow3d}</p></div>
   </section>
 
-  <section class="contents">
-    <h2>{s.contents}</h2>
+  <section class="contents" id="contents">
+    <div class="contents-head">
+      <h2>{s.contents}</h2>
+      <p class="mono">{s.modulesCount} · {s.contentsHint}</p>
+    </div>
     <ol class="modules">
       {groups.map(g => (
         <li class="module">
           <h3>
-            {g.module >= 1 && g.module <= 10 && <span class="mnum">{s.module} {g.module}</span>}
-            {moduleTitles[lang][g.module]}
+            <span class="mnum">{g.module >= 1 && g.module <= 10 ? pad(g.module) : '··'}</span>
+            <span class="mtitle">{moduleTitles[lang][g.module]}</span>
+            <span class="dots" aria-hidden="true">{'●'.repeat(g.lessons.length)}</span>
+            <span class="mcount mono">{lessonsCount(lang, g.lessons.length)}</span>
           </h3>
           <ul>
             {g.lessons.map(l => (
