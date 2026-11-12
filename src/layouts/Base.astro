@@ -7,10 +7,28 @@ import '../styles/global.css';
 import Flag from '../components/Flag.astro';
 import { ui, href, other, type Lang } from '../i18n/ui';
 
-// Donation links. Placeholders until the owner supplies the real addresses.
-const SUPPORT_CREATOR_URL = '#';
-const SUPPORT_UKRAINE_URL = '#';
+// Creator donation page; the QR code points here too.
+const SUPPORT_CREATOR_URL = 'https://donatello.to/trskrs';
 const CONTACT_EMAIL = 'tkonkevych@gmail.com';
+// Defence funds, per language: donate page and logo.
+const DEFENCE_FUNDS = [
+  {
+    name: { en: 'Angar', uk: 'Angar' },
+    url: { en: 'https://angarukraine.com/en/support', uk: 'https://angarukraine.com/uk/support' },
+    about: { en: 'https://angarukraine.com/en/about', uk: 'https://angarukraine.com/uk/about' },
+    logo: { en: '/images/support/angar.svg', uk: '/images/support/angar.svg' },
+    desc: 'fundAngar',
+    shape: 'tall',
+  },
+  {
+    name: { en: 'Come Back Alive', uk: 'Повернись живим' },
+    url: { en: 'https://savelife.in.ua/en/donate-en/#donate-army-card-once', uk: 'https://savelife.in.ua/donate/#donate-army-card-once' },
+    about: { en: 'https://savelife.in.ua/en/about-foundation-en/', uk: 'https://savelife.in.ua/about-foundation/' },
+    logo: { en: '/images/support/come-back-alive-en.svg', uk: '/images/support/come-back-alive-uk.svg' },
+    desc: 'fundComeBackAlive',
+    shape: 'wide',
+  },
+] as const;
 
 interface Props { lang: Lang; title?: string; description?: string; path: string }
 const { lang, title, description, path } = Astro.props;
@@ -54,6 +72,8 @@ const alt = other(lang);
           <div class="ft-about">
             <p class="ft-brand">{s.siteTitle}</p>
             <p>{s.footerAbout}</p>
+            <p class="ft-small">{s.credit}</p>
+            <p class="ft-small">{s.soundNote}</p>
           </div>
           <nav class="ft-col" aria-label={s.course}>
             <p class="ft-h">{s.course}</p>
@@ -62,18 +82,42 @@ const alt = other(lang);
             <a href={href(`/${alt}${path}`)} lang={alt} hreflang={alt}>{s.switchTo}</a>
           </nav>
           <div class="ft-support">
-            <p class="ft-h">{s.footerSupport}</p>
-            <a class="ft-btn ft-creator" href={SUPPORT_CREATOR_URL}>
-              <svg aria-hidden="true" viewBox="0 0 60 60" width="20" style="fill: none; stroke: currentColor; stroke-width: 6; stroke-linecap: round; stroke-linejoin: round"><path d="M30 52C8 36 6 22 14 14c7-6 14-2 16 4 2-6 9-10 16-4 8 8 6 22-16 38z" /></svg>
-              {s.supportCreator}
-            </a>
-            <a class="ft-btn ft-ukraine" href={SUPPORT_UKRAINE_URL}><Flag size={30} />{s.supportUkraine}</a>
+            <section class="ft-defence" aria-labelledby="ft-defence-h">
+              <p class="ft-h" id="ft-defence-h"><Flag size={22} ink="#ffd84a" />{s.supportUkraine}</p>
+              <ul class="ft-funds">
+                {DEFENCE_FUNDS.map((f) => (
+                  <li class="ft-fund">
+                    <a class={`ft-fund-logo ft-fund-${f.shape}`} href={f.url[lang]} target="_blank" rel="noopener" aria-label={s.fundDonate.replace('{name}', f.name[lang])}>
+                      <img src={href(f.logo[lang])} alt="" loading="lazy" />
+                    </a>
+                    <div class="ft-fund-text">
+                      <p class="ft-note">{s[f.desc]}</p>
+                      <a class="ft-fund-more" href={f.about[lang]} target="_blank" rel="noopener">{s.fundAbout} →</a>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </section>
+            <section class="ft-creator" aria-labelledby="ft-creator-h">
+              <p class="ft-h" id="ft-creator-h">{s.supportCreator}</p>
+              <div class="ft-creator-body">
+                <a class="ft-qr" href={SUPPORT_CREATOR_URL} target="_blank" rel="noopener">
+                  <img src={href('/images/support/qr-creator.svg')} alt={s.supportCreatorQr} width="132" height="132" loading="lazy" />
+                </a>
+                <div class="ft-creator-text">
+                  <p class="ft-note">{s.supportCreatorNote}</p>
+                  <a class="ft-btn" href={SUPPORT_CREATOR_URL} target="_blank" rel="noopener">
+                    <svg aria-hidden="true" viewBox="0 0 60 60" width="18" style="fill: none; stroke: currentColor; stroke-width: 6; stroke-linecap: round; stroke-linejoin: round"><path d="M30 52C8 36 6 22 14 14c7-6 14-2 16 4 2-6 9-10 16-4 8 8 6 22-16 38z" /></svg>
+                    {s.donate}
+                  </a>
+                </div>
+              </div>
+            </section>
           </div>
         </div>
         <div class="ft-bottom">
-          <p>{s.credit} · <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a></p>
-          <p>© 2026 {s.siteTitle}</p>
-          <p class="ft-sound">{s.soundNote}</p>
+          <p>{s.copyright}</p>
+          <p>{s.contactNote} <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a></p>
         </div>
       </div>
     </footer>
