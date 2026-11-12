@@ -7,8 +7,10 @@ const lang = Astro.params.lang as Lang;
 const s = ui[lang];
 ---
 <Base lang={lang} title={s.tools} path="/tools/">
+  <div class="wrap lesson-layout">
   <article class="lesson tools">
     <h1>{s.tools}</h1>
+    <svg class="underline" aria-hidden="true" viewBox="0 0 420 22" preserveAspectRatio="none"><path d="M6 14C70 2 130 20 200 10s150-8 214 2" /></svg>
     <p class="lede">{s.toolsIntro}</p>
     <div class="prose">
       <h2>{s.tEar}</h2>
@@ -32,6 +34,8 @@ const s = ui[lang];
       <chord-explorer root="C" chord="maj"></chord-explorer>
       <h3>{s.tCircle}</h3>
       <circle-of-fifths tonic="C"></circle-of-fifths>
+      <h3>{s.kwTools}</h3>
+      <key-wheel tonic="C"></key-wheel>
 
       <h2>{s.tPlay}</h2>
       <h3>{s.tProgPlayer}</h3>
@@ -48,4 +52,5 @@ const s = ui[lang];
       <quiz-box types="diatonic,diatonic-minor,numeral,degree,keysig,relative,function,signature"></quiz-box>
     </div>
   </article>
+  </div>
 </Base>

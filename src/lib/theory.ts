@@ -270,6 +270,15 @@ export function keySignature(tonic: Note): number {
 export const relativeMinor = (majorTonic: Note) => transpose(majorTonic, 'M6');
 
 export const CIRCLE_MAJOR = ['C', 'G', 'D', 'A', 'E', 'B', 'F#', 'Db', 'Ab', 'Eb', 'Bb', 'F'];
+
+/**
+ * The four chords a key uses most: I IV V vi in major, i iv v bIII in natural minor
+ * (the relative key's tonic last in both, so the pair of keys share their chords).
+ */
+export function keyCoreChords(tonic: Note, mode: 'major' | 'minor'): KeyChord[] {
+  const d = diatonicChords(tonic, mode);
+  return (mode === 'major' ? [0, 3, 4, 5] : [0, 3, 4, 2]).map(i => d[i]);
+}
 export const ROOTS = ['C', 'C#', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
 
 // ---------- Fretboard ----------

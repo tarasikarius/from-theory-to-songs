@@ -1,9 +1,16 @@
 ---
-import '@fontsource-variable/onest';
+import '@fontsource-variable/unbounded';
+import '@fontsource-variable/golos-text';
+import '@fontsource-variable/caveat';
 import '@fontsource-variable/jetbrains-mono';
-import '@fontsource-variable/playfair-display/wght-italic.css';
 import '../styles/global.css';
+import Flag from '../components/Flag.astro';
 import { ui, href, other, type Lang } from '../i18n/ui';
+
+// Donation links. Placeholders until the owner supplies the real addresses.
+const SUPPORT_CREATOR_URL = '#';
+const SUPPORT_UKRAINE_URL = '#';
+const CONTACT_EMAIL = 'tkonkevych@gmail.com';
 
 interface Props { lang: Lang; title?: string; description?: string; path: string }
 const { lang, title, description, path } = Astro.props;
@@ -18,43 +25,60 @@ const alt = other(lang);
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{fullTitle}</title>
     <meta name="description" content={description ?? s.tagline} />
+    <meta name="theme-color" content="#fff1e8" />
     <link rel="alternate" hreflang={alt} href={href(`/${alt}${path}`)} />
     <link rel="icon" href={href('/favicon.svg')} type="image/svg+xml" />
-    <script is:inline>
-      try {
-        var th = localStorage.getItem('theme');
-        if (th === 'light' || th === 'dark') document.documentElement.dataset.theme = th;
-      } catch (e) {}
-    </script>
   </head>
   <body>
     <a class="skip" href="#main">{s.skip}</a>
-    <header class="site-header">
-      <div class="bar">
-        <a class="brand" href={href(`/${lang}/`)}>
-          <svg viewBox="0 0 28 28" width="28" height="28" aria-hidden="true"><path class="w1" d="M2 14 Q8 0 14 14 T26 14" fill="none" stroke-width="2.2" stroke-linecap="round"/><path class="w5" d="M2 14 Q8 28 14 14 T26 14" fill="none" stroke-width="2.2" stroke-linecap="round"/><circle class="wc" cx="14" cy="14" r="2.4"/></svg>
-          <span>{s.siteTitle}</span>
-        </a>
-        <nav aria-label="Main">
-          <a href={href(`/${lang}/`)} aria-current={path === '/' ? 'page' : undefined}><span class="nav-num">01</span>{s.course}</a>
-          <a href={href(`/${lang}/tools/`)} aria-current={path === '/tools/' ? 'page' : undefined}><span class="nav-num">02</span>{s.tools}</a>
-          <a class="lang" href={href(`/${alt}${path}`)} lang={alt} hreflang={alt}>{s.switchTo}</a>
-          <button type="button" class="theme" id="theme-toggle" aria-label={s.theme} title={s.theme}>
-            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z" fill="currentColor"/></svg>
-          </button>
-        </nav>
+    <div class="page">
+      <slot name="doodles" />
+      <header class="site-header">
+        <div class="bar">
+          <div class="brandbox">
+            <a class="brand" href={href(`/${lang}/`)}>{s.siteTitle}</a>
+            <p class="made"><span class="scrap">{s.madeInUkraine}</span><Flag /></p>
+          </div>
+          <nav aria-label="Main">
+            <a href={href(`/${lang}/`)} aria-current={path === '/' ? 'page' : undefined}>{s.course}</a>
+            <a href={href(`/${lang}/tools/`)} aria-current={path === '/tools/' ? 'page' : undefined}>{s.tools}</a>
+            <a class="lang" href={href(`/${alt}${path}`)} lang={alt} hreflang={alt}>{s.switchTo}</a>
+          </nav>
+        </div>
+      </header>
+      <main id="main"><slot /></main>
+    </div>
+    <footer class="site-footer">
+      <div class="wrap">
+        <div class="ft-cols">
+          <div class="ft-about">
+            <p class="ft-brand">{s.siteTitle}</p>
+            <p>{s.footerAbout}</p>
+          </div>
+          <nav class="ft-col" aria-label={s.course}>
+            <p class="ft-h">{s.course}</p>
+            <a href={href(`/${lang}/#contents`)}>{s.contents}</a>
+            <a href={href(`/${lang}/tools/`)}>{s.tools}</a>
+            <a href={href(`/${alt}${path}`)} lang={alt} hreflang={alt}>{s.switchTo}</a>
+          </nav>
+          <div class="ft-support">
+            <p class="ft-h">{s.footerSupport}</p>
+            <a class="ft-btn ft-creator" href={SUPPORT_CREATOR_URL}>
+              <svg aria-hidden="true" viewBox="0 0 60 60" width="20" style="fill: none; stroke: currentColor; stroke-width: 6; stroke-linecap: round; stroke-linejoin: round"><path d="M30 52C8 36 6 22 14 14c7-6 14-2 16 4 2-6 9-10 16-4 8 8 6 22-16 38z" /></svg>
+              {s.supportCreator}
+            </a>
+            <a class="ft-btn ft-ukraine" href={SUPPORT_UKRAINE_URL}><Flag size={30} />{s.supportUkraine}</a>
+          </div>
+        </div>
+        <div class="ft-bottom">
+          <p>{s.credit} · <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a></p>
+          <p>© 2026 {s.siteTitle}</p>
+          <p class="ft-sound">{s.soundNote}</p>
+        </div>
       </div>
-    </header>
-    <main id="main"><slot /></main>
-    <footer class="site-footer"><p>{s.siteTitle} · {s.soundNote}</p></footer>
+    </footer>
     <script>
       import '../widgets/index.ts';
-      document.getElementById('theme-toggle')?.addEventListener('click', () => {
-        const root = document.documentElement;
-        const dark = root.dataset.theme !== 'light'; // dark is the default
-        root.dataset.theme = dark ? 'light' : 'dark';
-        try { localStorage.setItem('theme', root.dataset.theme); } catch {}
-      });
     </script>
   </body>
 </html>

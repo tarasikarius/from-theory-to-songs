@@ -2,6 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import { LANGS, ui, moduleTitles, href, lessonsCount, type Lang } from '../../i18n/ui';
 import { getLessons, byModule } from '../../lib/course';
+import { modStyle, modLabel } from '../../lib/modules';
 
 export function getStaticPaths() { return LANGS.map(lang => ({ params: { lang } })); }
 const lang = Astro.params.lang as Lang;
@@ -9,114 +10,163 @@ const s = ui[lang];
 const lessons = await getLessons(lang);
 const groups = byModule(lessons);
 const count = lessons.filter(l => l.data.module >= 1 && l.data.module <= 10).length;
-const pad = (n: number) => String(n).padStart(2, '0');
+const first = lessons.find(l => l.data.module === 1) ?? lessons[0];
+const power = lessons.find(l => l.slug.startsWith('03-03-'));
 
-// The site title with its last word set in the serif italic.
+// The title on two lines: "From Theory / to Songs".
 const words = s.siteTitle.split(' ');
-const titleLast = words.pop();
-const titleStart = words.join(' ');
-
-// First five harmonics of the open A string (110 Hz): A, A, E, A, C♯.
-// cls picks the degree colour: h1 = root, h5 = fifth, h3 = major third.
-const up = (t: string) => t.toLocaleUpperCase(lang);
-const harmonics = [
-  { n: 1, y: 60, c: 60, lobes: 1, cls: 'h1', label: `${up(s.hRoot)} · A` },
-  { n: 2, y: 150, c: 50, lobes: 2, cls: 'h1', label: `${up(s.hOctave)} · A` },
-  { n: 3, y: 240, c: 44, lobes: 3, cls: 'h5', label: `${up(s.hFifth)} · E` },
-  { n: 4, y: 330, c: 38, lobes: 4, cls: 'h1', label: `${up(s.hRoot)} · A` },
-  { n: 5, y: 420, c: 34, lobes: 5, cls: 'h3', label: `${up(s.hThird)} · C♯` },
-].map(h => {
-  const w = 420 / h.lobes;
-  const tail = Array.from({ length: h.lobes - 1 }, (_, i) => ` T${w * (i + 2)} ${h.y}`).join('');
-  const wave = (dir: number) => `M0 ${h.y} Q${w / 2} ${h.y + dir * h.c} ${w} ${h.y}${tail}`;
-  return {
-    ...h,
-    upper: wave(-1),
-    lower: wave(1),
-    nodes: Array.from({ length: h.lobes - 1 }, (_, i) => w * (i + 1)),
-    hz: `${h.n}× ${110 * h.n} ${s.hz}`,
-  };
-});
+const cut = Math.ceil(words.length / 2);
+const titleTop = words.slice(0, cut).join(' ');
+const titleBottom = words.slice(cut).join(' ');
 ---
 <Base lang={lang} path="/">
-  <div class="stage">
-    <p class="meta-strip mono">
-      <span>{s.metaAudience}</span>
-      <span>{s.modulesCount} · {lessonsCount(lang, count)} · {s.toolsCount}</span>
-      <span>{s.metaString}</span>
-    </p>
+  <Fragment slot="doodles">
+    <svg class="faint side" aria-hidden="true" viewBox="0 0 60 70" style="left: 3%; top: 150px; width: 54px; transform: rotate(-12deg)"><ellipse cx="14" cy="54" rx="10" ry="8" /><path d="M24 54V10l26-6v40" /><ellipse cx="40" cy="46" rx="10" ry="8" /></svg>
+    <svg class="faint side" aria-hidden="true" viewBox="0 0 60 60" style="right: 4%; top: 96px; width: 46px; transform: rotate(10deg)"><path d="M30 4l7 18 19 1-15 12 5 19-16-11-16 11 5-19L4 23l19-1z" /></svg>
+    <svg class="faint side" aria-hidden="true" viewBox="0 0 50 70" style="right: 2%; top: 720px; width: 40px; transform: rotate(14deg)"><ellipse cx="16" cy="56" rx="11" ry="8" /><path d="M27 56V8c4 10 16 10 16 24" /></svg>
+    <svg class="side pen" aria-hidden="true" viewBox="0 0 52 64" style="left: 10px; top: 330px; width: 38px; transform: rotate(-8deg)"><path d="M30 4L10 34h14L16 60l26-34H28z" /></svg>
+    <svg class="side pencil" aria-hidden="true" viewBox="0 0 60 60" style="left: 12px; top: 560px; width: 44px"><path d="M30 30c0-4 6-4 6 1s-8 8-13 3-3-16 6-17 17 7 15 18-14 17-25 13S6 34 10 22" /></svg>
+    <svg class="side pen" aria-hidden="true" viewBox="0 0 60 60" style="right: 12px; top: 300px; width: 46px; transform: rotate(8deg)"><circle cx="30" cy="30" r="24" /><path d="M12 24h36M14 24v8h12v-8M34 24v8h12v-8M20 42q10 8 20 0" /></svg>
+    <svg class="side pencil" aria-hidden="true" viewBox="0 0 60 60" style="right: 10px; top: 520px; width: 46px; transform: rotate(-6deg)"><path d="M8 22l14-12h28v26L36 50H8zM8 22h28v28M36 22l14-12" /></svg>
+    <svg class="side pencil" aria-hidden="true" viewBox="0 0 60 60" style="left: 8px; top: 820px; width: 50px; transform: rotate(-6deg)"><path d="M20 4v52M40 4v52M4 20h52M4 40h52M7 7l8 8M15 7l-8 8M45 45l8 8M53 45l-8 8" /><circle cx="30" cy="30" r="5" /><circle cx="50" cy="11" r="5" /></svg>
+    <svg class="side pen" aria-hidden="true" viewBox="0 0 60 60" style="right: 12px; top: 960px; width: 38px; transform: rotate(12deg)"><path d="M30 52C8 36 6 22 14 14c7-6 14-2 16 4 2-6 9-10 16-4 8 8 6 22-16 38z" /></svg>
+    <svg class="side pencil" aria-hidden="true" viewBox="0 0 60 60" style="left: 16px; top: 1040px; width: 36px; transform: rotate(-14deg)"><path d="M30 4l7 18 19 1-15 12 5 19-16-11-16 11 5-19L4 23l19-1z" /></svg>
+  </Fragment>
 
-    <section class="hero">
-      <div class="hero-copy">
-        <h1>{titleStart} <span class="serif">{titleLast}</span></h1>
-        <p class="lede">{s.tagline}</p>
-        <p class="aud">{s.audience}</p>
-        {lessons[0] && <a class="cta" href={href(`/${lang}/lessons/${lessons[0].slug}/`)}>{s.start} <span aria-hidden="true">→</span></a>}
+  <section class="wrap hero">
+    <div class="hero-copy">
+      <h1>{titleTop}<br />{titleBottom}</h1>
+      <svg class="underline" aria-hidden="true" viewBox="0 0 420 22" preserveAspectRatio="none"><path d="M6 14C70 2 130 20 200 10s150-8 214 2" /></svg>
+      <p class="hand kicker">{s.heroKicker}</p>
+      <p class="lede">{s.tagline}.</p>
+      <p class="sub">{s.heroSub}</p>
+      <div class="hero-actions">
+        {first && <a class="cta" href={href(`/${lang}/lessons/${first.slug}/`)}>{s.start}</a>}
         <a class="cta ghost" href={href(`/${lang}/tools/`)}>{s.tools}</a>
+        <span class="hand">{s.noSignup}</span>
       </div>
+      <div class="scraps" aria-hidden="true">
+        <span class="scrap" style="font-size: 1.9rem; color: var(--hand); transform: rotate(-3deg)">{s.scrapFifth}</span>
+        <svg class="pencil" viewBox="0 0 70 40" style="width: 64px"><path d="M4 34L14 6l6 28L30 6l6 28L46 6l6 28L62 6" /></svg>
+        <span class="scrap" style="font-size: 1.6rem; color: var(--muted); transform: rotate(2deg)">E A D G B E</span>
+        <svg class="pen" viewBox="0 0 60 64" style="width: 40px; transform: rotate(10deg)"><path d="M30 6c14 0 22 6 22 16 0 12-12 26-22 36C20 48 8 34 8 22 8 12 16 6 30 6z" /><path d="M22 22l8 8 8-8" /></svg>
+      </div>
+    </div>
+    <div class="hero-wheel">
+      <div class="try" aria-hidden="true">
+        <span class="hand">{s.tryIt}</span>
+        <svg viewBox="0 0 70 50"><path d="M4 8c26-6 48 6 56 34" /><path d="M60 42l-14-6M60 42l4-15" /></svg>
+      </div>
+      <key-wheel tonic="G"></key-wheel>
+    </div>
+  </section>
 
-      <figure class="hero-fig">
-        <svg class="hw" viewBox="-10 20 800 440" role="img" aria-label={s.figAlt}>
-          <line class="hw-end" x1="0" y1="24" x2="0" y2="456" />
-          <line class="hw-end" x1="420" y1="24" x2="420" y2="456" />
-          {harmonics.map(h => (
-            <g>
-              <path class={h.cls} d={h.upper} />
-              <path class={`${h.cls} ghost`} d={h.lower} />
-              {h.nodes.map(x => <circle class="hw-node" cx={x} cy={h.y} r="4" />)}
-              <line class="hw-end" x1="428" y1={h.y} x2="450" y2={h.y} />
-              <rect class={`hw-pill ${h.cls}`} x="450" y={h.y - 19} width="224" height="38" rx="19" />
-              <text class="hw-label" x="562" y={h.y + 5}>{h.label}</text>
-              <text class="hw-hz" x="686" y={h.y + 5}>{h.hz}</text>
-            </g>
-          ))}
-        </svg>
-        <figcaption>
-          <p class="hero-cap">{s.heroCaption}</p>
-          <p class="mono">{s.heroCaptionSub}</p>
-        </figcaption>
+  <section class="wrap how" aria-labelledby="how-title">
+    <div class="how-head">
+      <h2 id="how-title">{s.homeHow}</h2>
+      <div class="scraps" aria-hidden="true" style="margin: 0; gap: 12px 24px">
+        <span class="scrap" style="font-size: 2rem; color: var(--hand); transform: rotate(-4deg); text-decoration: underline wavy; text-underline-offset: 6px">{s.scrapPractice}</span>
+        <svg class="pen" viewBox="0 0 52 64" style="width: 30px; transform: rotate(12deg)"><path d="M30 4L10 34h14L16 60l26-34H28z" /></svg>
+        <svg class="pencil" viewBox="0 0 60 60" style="width: 30px"><path d="M30 4l7 18 19 1-15 12 5 19-16-11-16 11 5-19L4 23l19-1z" /></svg>
+        <svg class="pencil" viewBox="0 0 60 60" style="width: 20px; transform: rotate(20deg)"><path d="M30 4l7 18 19 1-15 12 5 19-16-11-16 11 5-19L4 23l19-1z" /></svg>
+        <svg class="pen" viewBox="0 0 60 60" style="width: 42px; transform: rotate(-8deg)"><path d="M12 28a18 18 0 1 1 36 0v10l-6 4v10H18V42l-6-4zM26 52v-6M34 52v-6" /><circle cx="23" cy="28" r="4" /><circle cx="37" cy="28" r="4" /></svg>
+        <span class="scrap" style="font-size: 1.6rem; color: var(--muted); transform: rotate(3deg)">{s.scrapLouder}</span>
+      </div>
+    </div>
+    <div class="how-row">
+      <svg class="thread" aria-hidden="true" viewBox="0 0 1300 250" preserveAspectRatio="none"><path vector-effect="non-scaling-stroke" d="M8 88C25 70 40 62 60 60C150 50 260 40 300 50C315 55 320 68 330 74C420 110 540 120 578 112C590 108 594 100 600 97C700 60 820 20 868 38C880 45 872 70 886 76C890 78 895 78 900 77C1000 80 1120 95 1150 88C1175 80 1190 60 1205 44" /></svg>
+      <div class="sticky n-yellow" style="transform: rotate(-2deg)"><span class="tape" aria-hidden="true"></span><h3>1. {s.homeHow1}</h3><p>{s.homeHow1d}</p></div>
+      <div class="sticky n-pink" style="transform: rotate(1.5deg); margin-top: 18px"><span class="tape" aria-hidden="true"></span><h3>2. {s.homeHow2}</h3><p>{s.homeHow2d}</p></div>
+      <figure class="shot" style="transform: rotate(-1deg)"><span class="tape" aria-hidden="true"></span>
+        <div class="ph" style="aspect-ratio: 4 / 3"><svg aria-hidden="true" viewBox="0 0 48 48"><rect x="5" y="9" width="38" height="30" rx="4" /><path d="M20 17v14l12-7z" /></svg>{s.gifPlaceholder}</div>
+        <figcaption>{s.gifCaption}</figcaption>
       </figure>
-    </section>
-
-    <p class="legend mono">
-      <strong>{s.legendTitle}</strong>
-      <span><i class="deg d1"></i>1 {s.legendRoot}</span>
-      {[2, 3, 4, 5, 6, 7].map(d => <span><i class={`deg d${d}`}></i>{d}</span>)}
-    </p>
-  </div>
-
-  <section class="how" aria-label={s.homeHow}>
-    <div><span class="step">01 / {s.stepRead}</span><h3>{s.homeHow1}</h3><p>{s.homeHow1d}</p></div>
-    <div><span class="step">02 / {s.stepHear}</span><h3>{s.homeHow2}</h3><p>{s.homeHow2d}</p></div>
-    <div><span class="step">03 / {s.stepPlay}</span><h3>{s.homeHow3}</h3><p>{s.homeHow3d}</p></div>
+      <div class="sticky n-mint" style="transform: rotate(2deg); margin-top: 10px"><span class="tape" aria-hidden="true"></span><h3>3. {s.homeHow3}</h3><p>{s.homeHow3d}</p></div>
+    </div>
   </section>
 
   <section class="contents" id="contents">
-    <div class="contents-head">
-      <h2>{s.contents}</h2>
-      <p class="mono">{s.modulesCount} · {s.contentsHint}</p>
+    <span class="side scrap bonjovi" aria-hidden="true">Bon Jovi</span>
+    <svg class="side pencil" aria-hidden="true" viewBox="0 0 50 70" style="left: 12px; top: 200px; width: 34px; transform: rotate(-10deg)"><ellipse cx="16" cy="56" rx="11" ry="8" /><path d="M27 56V8c4 10 16 10 16 24" /></svg>
+    <svg class="side pen" aria-hidden="true" viewBox="0 0 60 64" style="right: 12px; top: 140px; width: 38px; transform: rotate(14deg)"><path d="M30 6c14 0 22 6 22 16 0 12-12 26-22 36C20 48 8 34 8 22 8 12 16 6 30 6z" /></svg>
+    <svg class="side pencil" aria-hidden="true" viewBox="0 0 40 70" style="left: 10px; top: 520px; width: 32px"><path d="M6 4l28 10L6 24l28 10L6 44l28 10L6 64" /></svg>
+    <svg class="side pen" aria-hidden="true" viewBox="0 0 60 60" style="right: 14px; top: 640px; width: 34px; transform: rotate(-12deg)"><path d="M30 4l7 18 19 1-15 12 5 19-16-11-16 11 5-19L4 23l19-1z" /></svg>
+    <svg class="side pen" aria-hidden="true" viewBox="0 0 60 60" style="left: 12px; top: 900px; width: 40px"><path d="M30 30c0-4 6-4 6 1s-8 8-13 3-3-16 6-17 17 7 15 18-14 17-25 13S6 34 10 22" /></svg>
+    <svg class="side pencil" aria-hidden="true" viewBox="0 0 60 60" style="right: 10px; top: 1000px; width: 40px; transform: rotate(8deg)"><path d="M8 22l14-12h28v26L36 50H8zM8 22h28v28M36 22l14-12" /></svg>
+
+    <div class="wrap contents-grid">
+      <div class="contents-main">
+        <h2>{s.contents}</h2>
+        <ol class="modules">
+          {groups.map(g => (
+            <li class="module" style={modStyle(g.module)}>
+              <h3>
+                <span class="mdot" aria-hidden="true">{modLabel(g.module)}</span>
+                <span class="mtitle">
+                  {moduleTitles[lang][g.module]}
+                  {g.module === 1 && <span class="hand"> {s.startHere}</span>}
+                  {g.module === 10 && <span class="hand" style="color: var(--accent-fill)"> {s.finishedSong}</span>}
+                </span>
+                <span class="mcount">{lessonsCount(lang, g.lessons.length)}</span>
+              </h3>
+              <ul>
+                {g.lessons.map(l => (
+                  <li>
+                    <a href={href(`/${lang}/lessons/${l.slug}/`)}>
+                      {l.data.number && <span class="lnum">{l.data.number}</span>}
+                      <span>{l.data.title}</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </li>
+          ))}
+        </ol>
+      </div>
+
+      <div class="contents-side">
+        <figure class="shot" style="transform: rotate(2.5deg)"><span class="tape" aria-hidden="true"></span>
+          <div class="ph" style="aspect-ratio: 1"><svg aria-hidden="true" viewBox="0 0 48 48"><rect x="5" y="9" width="38" height="30" rx="4" /><circle cx="17" cy="20" r="4" /><path d="M5 34l12-9 9 7 7-5 10 8" /></svg>{s.photoPlaceholder}</div>
+          <figcaption>{s.photoCaption}</figcaption>
+        </figure>
+        <div class="sticky n-yellow" style="transform: rotate(-2.5deg)"><span class="tape" aria-hidden="true"></span><h3>{s.modulesCount}, {lessonsCount(lang, count)}</h3><p>{s.contentsNote}</p></div>
+        <div class="scraps" aria-hidden="true" style="align-items: center">
+          <svg class="pen" viewBox="0 0 70 62" style="width: 92px; transform: rotate(-3deg)"><rect x="6" y="8" width="58" height="48" rx="4" /><path d="M6 22h58M16 32h38M16 40h38M16 48h38" /><circle cx="16" cy="15" r="2" /><circle cx="27" cy="15" r="2" /><circle cx="38" cy="15" r="2" /></svg>
+          <span class="scrap" style="font-size: 1.75rem; color: var(--hand); transform: rotate(-3deg)">{s.scrapAgain}</span>
+          <span class="scrap" style="font-size: 1.5rem; color: var(--muted); transform: rotate(2deg); text-decoration: line-through">{s.scrapBand}</span>
+        </div>
+      </div>
     </div>
-    <ol class="modules">
-      {groups.map(g => (
-        <li class="module">
-          <h3>
-            <span class="mnum">{g.module >= 1 && g.module <= 10 ? pad(g.module) : '··'}</span>
-            <span class="mtitle">{moduleTitles[lang][g.module]}</span>
-            <span class="dots" aria-hidden="true">{'●'.repeat(g.lessons.length)}</span>
-            <span class="mcount mono">{lessonsCount(lang, g.lessons.length)}</span>
-          </h3>
-          <ul>
-            {g.lessons.map(l => (
-              <li>
-                <a href={href(`/${lang}/lessons/${l.slug}/`)}>
-                  {l.data.number && <span class="lnum">{l.data.number}</span>}
-                  <span>{l.data.title}</span>
-                </a>
-              </li>
-            ))}
-          </ul>
-        </li>
-      ))}
-    </ol>
+
+    {power && (
+      <div class="wrap excerpt">
+        <p class="hand excerpt-say"><span class="hl">{s.russia}</span></p>
+        <div class="excerpt-box">
+          <div class="excerpt-text">
+            <p class="label">{s.excerptLabel.replace('{n}', power.data.number ?? '')}</p>
+            <h2>{s.excerptTitle}</h2>
+            <h3>{s.excerptIdea}</h3>
+            <p>{s.excerptText}</p>
+            <a class="more" href={href(`/${lang}/lessons/${power.slug}/`)}>{s.excerptMore} →</a>
+          </div>
+          <div class="tabcard">
+            <p class="label">{s.excerptTabLabel}</p>
+            <pre aria-label="D 7, A 7, E 5">D|--7--|
+A|--7--|
+E|--5--|</pre>
+            <p class="hand">{s.excerptTabNote}</p>
+          </div>
+          <figure class="shot"><span class="tape" aria-hidden="true"></span>
+            <div class="crop"><img src={href('/images/guitarist.webp')} alt={s.guitaristAlt} width="1080" height="1080" loading="lazy" /></div>
+            <figcaption>{s.vityaCaption}</figcaption>
+          </figure>
+        </div>
+      </div>
+    )}
   </section>
 </Base>
+
+<style>
+  /* The contents section runs into the footer: give the footer's rounded corners a white ground. */
+  :global(body:has(.contents) .site-footer) { margin-top: 0; box-shadow: 0 -40px 0 0 var(--surface); }
+</style>

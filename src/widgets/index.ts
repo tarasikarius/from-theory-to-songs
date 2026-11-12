@@ -1,5 +1,5 @@
 import { FretBoard, PianoKeys } from './instruments';
-import { ChordExplorer, CircleOfFifths, IntervalExplorer, ScaleExplorer } from './explorers';
+import { ChordExplorer, CircleOfFifths, IntervalExplorer, KeyWheel, ScaleExplorer } from './explorers';
 import { BeatGrid, MetroNome, ProgressionPlayer } from './players';
 import { EarTrainer, QuizBox } from './trainers';
 
@@ -10,6 +10,7 @@ const registry: Record<string, CustomElementConstructor> = {
   'chord-explorer': ChordExplorer,
   'interval-explorer': IntervalExplorer,
   'circle-of-fifths': CircleOfFifths,
+  'key-wheel': KeyWheel,
   'progression-player': ProgressionPlayer,
   'metro-nome': MetroNome,
   'beat-grid': BeatGrid,

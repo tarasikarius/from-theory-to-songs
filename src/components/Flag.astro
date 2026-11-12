@@ -1,0 +1,11 @@
+---
+// Hand-drawn Ukrainian flag: wavy blue over yellow, ink outline and a pole. Decorative; the text next to it says it.
+interface Props { ink?: string; size?: number }
+const { ink = '#2b1420', size = 34 } = Astro.props;
+---
+<svg class="flag" aria-hidden="true" viewBox="0 0 42 30" width={size} style={`width: ${size}px; stroke: ${ink}`}>
+  <path d="M5 5Q13 2 21 5T37 5V15Q29 12 21 15T5 15Z" style="fill: #0057B7; stroke: none" />
+  <path d="M5 15Q13 12 21 15T37 15V25Q29 22 21 25T5 25Z" style="fill: #FFD700; stroke: none" />
+  <path d="M5 5Q13 2 21 5T37 5V25Q29 22 21 25T5 25" style="fill: none" />
+  <path d="M4 2V29" style="fill: none" />
+</svg>

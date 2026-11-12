@@ -3,6 +3,7 @@ import { render } from 'astro:content';
 import Base from '../../../layouts/Base.astro';
 import { LANGS, ui, moduleTitles, href, type Lang } from '../../../i18n/ui';
 import { getLessons, byModule, type Lesson } from '../../../lib/course';
+import { modStyle, modLabel } from '../../../lib/modules';
 
 export async function getStaticPaths() {
   const paths: { params: { lang: Lang; slug: string }; props: { lesson: Lesson; prev: Lesson | null; next: Lesson | null; lessons: Lesson[] } }[] = [];
@@ -21,20 +22,18 @@ const s = ui[lang];
 const { Content, headings } = await render(lesson);
 const sections = headings.filter(h => h.depth === 2);
 const pad = (n: number) => String(n).padStart(2, '0');
-const [titleMain, ...titleRest] = lesson.data.title.split(': ');
-const titleSub = titleRest.join(': ');
 const groups = byModule(lessons);
 const m = lesson.data.module;
 ---
 <Base lang={lang} title={lesson.data.title} description={lesson.data.summary} path={`/lessons/${lesson.slug}/`}>
-  <div class="lesson-layout">
+  <div class="wrap lesson-layout">
     <aside class="sidebar">
       <details class="toc">
         <summary>{s.toc}</summary>
         <nav aria-label={s.toc}>
           {groups.map(g => (
-            <div class="toc-group">
-              <p class="toc-title">{g.module >= 1 && g.module <= 10 ? `${g.module}. ` : ''}{moduleTitles[lang][g.module]}</p>
+            <details class="toc-group" open={g.module === m} style={modStyle(g.module)}>
+              <summary><span class="tdot" aria-hidden="true">{modLabel(g.module)}</span>{moduleTitles[lang][g.module]}</summary>
               <ul>
                 {g.lessons.map(l => (
                   <li>
@@ -44,17 +43,22 @@ const m = lesson.data.module;
                   </li>
                 ))}
               </ul>
-            </div>
+            </details>
           ))}
         </nav>
       </details>
+      <div class="buddy" aria-hidden="true">
+        <svg class="pen" viewBox="0 0 100 100"><path d="M30 28L33 10L46 22Q55 19 64 22L77 10L80 28Q88 40 79 50Q55 62 31 50Q22 40 30 28Z" /><path d="M40 37q4-4 8 0M62 37q4-4 8 0" /><path d="M53 42h4l-2 3zM55 45q-3 4-6 1M55 45q3 4 6 1" /><path d="M37 44L22 41M37 48L23 51M73 44L88 41M73 48L87 51" /><path d="M36 55Q28 74 34 92H76Q82 74 74 55" /><path d="M47 92v-8M63 92v-8" /><path d="M76 89Q96 87 92 69Q90 61 84 65" /></svg>
+        <span class="scrap">{s.practiceBuddy}</span>
+      </div>
     </aside>
-    <article class="lesson">
-      <p class="crumbs mono">
-        <span>{m >= 1 && m <= 10 ? `${s.module} ${pad(m)} · ${moduleTitles[lang][m]}` : moduleTitles[lang][m]}</span>
+    <article class="lesson" style={modStyle(m)}>
+      <p class="crumbs">
+        <span><span class="tdot" aria-hidden="true">{modLabel(m)}</span>{m >= 1 && m <= 10 ? `${s.module} ${pad(m)} · ${moduleTitles[lang][m]}` : moduleTitles[lang][m]}</span>
         {lesson.data.number && m <= 10 && <span>{s.lesson} {lesson.data.number}</span>}
       </p>
-      <h1>{titleSub ? <Fragment>{titleMain}: <span class="serif">{titleSub}</span></Fragment> : titleMain}</h1>
+      <h1>{lesson.data.title}</h1>
+      <svg class="underline" aria-hidden="true" viewBox="0 0 420 22" preserveAspectRatio="none"><path d="M6 14C70 2 130 20 200 10s150-8 214 2" /></svg>
       {lesson.data.summary && <p class="lede">{lesson.data.summary}</p>}
       {sections.length > 1 && (
         <nav class="lesson-nav" aria-label={s.inLesson}>
@@ -71,9 +75,7 @@ const m = lesson.data.module;
   <script is:inline>
     (function () {
       var d = document.querySelector('details.toc');
-      if (d && matchMedia('(min-width: 960px)').matches) d.open = true;
-      var cur = d && d.querySelector('[aria-current="page"]');
-      if (cur && d.open) cur.scrollIntoView({ block: 'center' });
+      if (d && matchMedia('(min-width: 900px)').matches) d.open = true;
     })();
   </script>
 </Base>

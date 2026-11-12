@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Spectrum with notes lesson page</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&amp;family=Golos+Text:wght@400;600&amp;family=Caveat:wght@600;700&amp;display=swap">
+<style>
+body{margin:0;background:var(--bg)}
+a{color:var(--ink)}a:hover{color:var(--primary)}
+.hand{font-family:'Caveat',cursive;font-weight:700;line-height:1.1}
+.scrap{font-family:'Caveat',cursive;font-weight:700;line-height:1.05;white-space:nowrap}
+.pen{fill:none;stroke:var(--hand);stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round}
+.pencil{fill:none;stroke:var(--muted);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;opacity:.5}
+.side{position:absolute;pointer-events:none}
+.sticky{position:relative;padding:30px 22px 22px;box-sizing:border-box;box-shadow:3px 5px 0 rgba(27,22,66,.14)}
+.sticky h3{margin:0 0 6px;font-family:'Caveat',cursive;font-weight:700;font-size:30px;line-height:1.05}
+.sticky p{margin:0;font-size:16px;line-height:1.45}
+.tape{position:absolute;top:-13px;left:50%;width:90px;height:26px;margin-left:-45px;background:var(--tape)}
+.toc-mod{display:flex;align-items:center;gap:12px;min-height:44px;text-decoration:none;font-weight:600;font-size:15px;line-height:1.25}
+.tdot{flex:0 0 30px;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Unbounded',sans-serif;font-weight:700;font-size:12px;color:var(--ink)}
+.toc-l{display:flex;gap:8px;min-height:44px;align-items:center;padding:0 12px;margin-left:42px;border-radius:14px;text-decoration:none;font-size:15px;line-height:1.3}
+.toc-l b{font-family:'Unbounded',sans-serif;font-weight:500;font-size:12px;color:var(--muted)}
+.pill{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;background:var(--bg);border-radius:22px;text-decoration:none;font-weight:600;font-size:15px}
+.pill b{font-family:'Unbounded',sans-serif;font-weight:700;font-size:12px;color:var(--primary)}
+.sec{display:flex;align-items:center;gap:14px;margin:56px 0 16px;font-family:'Unbounded',sans-serif;font-weight:800;font-size:28px;line-height:1.15;letter-spacing:-0.02em}
+.sec span{flex:0 0 44px;width:44px;height:44px;border-radius:50%;background:#FF8A7A;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;letter-spacing:0}
+.prose p{margin:0 0 16px}
+.prose ul,.prose ol{margin:0 0 18px;padding-left:24px}
+.prose li{margin:0 0 10px}
+.tbl{width:100%;border-collapse:separate;border-spacing:0;margin:0 0 20px;font-size:16px;border:2px solid var(--soft);border-radius:20px;overflow:hidden}
+.tbl th{background:var(--bg);text-align:left;font-family:'Unbounded',sans-serif;font-weight:500;font-size:13px;padding:12px 14px}
+.tbl td{padding:10px 14px;border-top:2px solid var(--soft)}
+.mono{font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace}
+.chipb{min-width:48px;min-height:44px;padding:0 10px;border-radius:22px;border:2px solid var(--soft);background:#FFFFFF;color:var(--ink);font-family:'Unbounded',sans-serif;font-weight:700;font-size:13px;cursor:pointer}
+.btn{min-height:48px;padding:0 22px;border-radius:24px;border:0;font-family:'Unbounded',sans-serif;font-weight:700;font-size:14px;cursor:pointer}
+.ex{display:flex;gap:14px;margin:0 0 18px}
+.ex > span{flex:0 0 36px;width:36px;height:36px;border-radius:50%;border:3px solid #FF8A7A;display:flex;align-items:center;justify-content:center;font-family:'Unbounded',sans-serif;font-weight:700;font-size:14px;box-sizing:border-box}
+.ex p{margin:0}
+.mis{display:flex;gap:14px;align-items:flex-start;margin:0 0 16px}
+.mis svg{flex:0 0 26px;width:26px;margin-top:2px;fill:none;stroke:var(--primary);stroke-width:4;stroke-linecap:round}
+.mis p{margin:0}
+.pg{flex:1 1 260px;display:flex;flex-direction:column;gap:4px;min-height:60px;padding:18px 24px;background:#FFFFFF;border-radius:24px;text-decoration:none}
+.pg small{font-family:'Unbounded',sans-serif;font-weight:500;font-size:13px;color:var(--primary)}
+.pg span{font-weight:600;font-size:18px;line-height:1.3}
+@media (min-width: 1100px){.m1{margin-top:1640px}.m2{margin-top:560px}.m3{margin-top:470px}}
+.ft a{color:#FFFFFF}.ft a:hover{color:#FFD84A}
+.ft-h{margin:0 0 10px;font-family:'Unbounded',sans-serif;font-weight:500;font-size:13px;letter-spacing:.04em;color:#FFD84A}
+.ft-l{display:flex;align-items:center;min-height:44px;text-decoration:none;font-weight:600}
+.ft-btn{display:inline-flex;align-items:center;gap:10px;min-height:52px;padding:0 24px;border-radius:26px;text-decoration:none;font-family:'Unbounded',sans-serif;font-weight:700;font-size:14px}
+</style>
+</helmet>
+<div id="top" style="--bg: {{p.bg}}; --soft: {{p.soft}}; --ink: {{p.ink}}; --muted: {{p.muted}}; --primary: {{p.primary}}; --near: {{p.near}}; --hand: {{p.hand}}; --tape: {{p.tape}}; position: relative; background: var(--bg); color: var(--ink); font-family: 'Golos Text', system-ui, sans-serif; font-size: 18px; line-height: 1.6; overflow: clip">
+
+<svg class="side pen" aria-hidden="true" viewBox="0 0 52 64" style="left: 8px; top: 260px; width: 30px; transform: rotate(-8deg)"><path d="M30 4L10 34h14L16 60l26-34H28z"></path></svg>
+<svg class="side pencil" aria-hidden="true" viewBox="0 0 60 60" style="left: 6px; top: 900px; width: 32px"><path d="M30 30c0-4 6-4 6 1s-8 8-13 3-3-16 6-17 17 7 15 18-14 17-25 13S6 34 10 22"></path></svg>
+<svg class="side pencil" aria-hidden="true" viewBox="0 0 60 60" style="left: 8px; top: 1900px; width: 30px; transform: rotate(-14deg)"><path d="M30 4l7 18 19 1-15 12 5 19-16-11-16 11 5-19L4 23l19-1z"></path></svg>
+<svg class="side pen" aria-hidden="true" viewBox="0 0 60 64" style="left: 6px; top: 3000px; width: 30px; transform: rotate(10deg)"><path d="M30 6c14 0 22 6 22 16 0 12-12 26-22 36C20 48 8 34 8 22 8 12 16 6 30 6z"></path></svg>
+<svg class="side pen" aria-hidden="true" viewBox="0 0 60 60" style="right: 6px; top: 420px; width: 32px; transform: rotate(-12deg)"><path d="M30 4l7 18 19 1-15 12 5 19-16-11-16 11 5-19L4 23l19-1z"></path></svg>
+<svg class="side pencil" aria-hidden="true" viewBox="0 0 60 60" style="right: 6px; top: 1300px; width: 32px; transform: rotate(-6deg)"><path d="M8 22l14-12h28v26L36 50H8zM8 22h28v28M36 22l14-12"></path></svg>
+<svg class="side pencil" aria-hidden="true" viewBox="0 0 40 70" style="right: 8px; top: 2500px; width: 24px"><path d="M6 4l28 10L6 24l28 10L6 44l28 10L6 64"></path></svg>
+<svg class="side pen" aria-hidden="true" viewBox="0 0 60 60" style="right: 6px; top: 3500px; width: 32px; transform: rotate(8deg)"><circle cx="30" cy="30" r="24"></circle><path d="M12 24h36M14 24v8h12v-8M34 24v8h12v-8M20 42q10 8 20 0"></path></svg>
+
+<header style="position: relative; max-width: 1200px; margin: 0 auto; padding: 16px 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 24px">
+<a href="#top" style="text-decoration: none; font-family: 'Unbounded', sans-serif; font-weight: 800; font-size: 18px; min-height: 44px; display: inline-flex; align-items: center">From Theory to Songs</a>
+<nav style="display: flex; flex-wrap: wrap; align-items: center; gap: 4px 28px">
+<a href="#toc" style="min-height: 44px; display: inline-flex; align-items: center; text-decoration: none; font-weight: 600">Course</a>
+<a href="#top" style="min-height: 44px; display: inline-flex; align-items: center; text-decoration: none; font-weight: 600">Practice tools</a>
+<a href="#top" style="min-height: 44px; display: inline-flex; align-items: center; padding: 0 18px; text-decoration: none; font-weight: 600; background: #FFFFFF; border-radius: 22px">Українською</a>
+</nav>
+</header>
+
+<div style="max-width: 1200px; margin: 0 auto; padding: 8px 24px 40px; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 28px">
+
+<aside id="toc" style="flex: 1 1 250px; max-width: 100%; min-width: 0">
+<details open="" style="background: #FFFFFF; border-radius: 28px; padding: 14px 18px 18px">
+<summary style="min-height: 44px; display: flex; align-items: center; cursor: pointer; font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: 16px">Lessons</summary>
+<nav aria-label="Lessons">
+<a class="toc-mod" href="#top"><span class="tdot" style="background: var(--soft)">0</span>Introduction</a>
+<a class="toc-mod" href="#top"><span class="tdot" style="background: #FF8A7A">1</span>Intervals: the atoms of music</a>
+<a class="toc-l" href="#top" aria-current="page" style="background: var(--primary); color: #FFFFFF"><b style="color: #FFFFFF">1.1</b>Naming and Building Intervals</a>
+<a class="toc-l" href="#top"><b>1.2</b>Consonance, Dissonance and Interval Character</a>
+<a class="toc-l" href="#top"><b>1.3</b>Training Your Ear</a>
+<a class="toc-mod" href="#top"><span class="tdot" style="background: #FFB14A">2</span>Scales: your melodic vocabulary</a>
+<a class="toc-mod" href="#top"><span class="tdot" style="background: #FFD84A">3</span>Chords: building every chord you need</a>
+<a class="toc-mod" href="#top"><span class="tdot" style="background: #B9E24A">4</span>Diatonic harmony</a>
+<a class="toc-mod" href="#top"><span class="tdot" style="background: #5FDDA0">5</span>Rhythm, meter and riffcraft</a>
+<a class="toc-mod" href="#top"><span class="tdot" style="background: #4FD6D6">6</span>Melody</a>
+<a class="toc-mod" href="#top"><span class="tdot" style="background: #7DBBFF">7</span>Song form and structure</a>
+<a class="toc-mod" href="#top"><span class="tdot" style="background: #A9A8FF">8</span>Beyond the key</a>
+<a class="toc-mod" href="#top"><span class="tdot" style="background: #CF9BFF">9</span>Arrangement and production</a>
+<a class="toc-mod" href="#top"><span class="tdot" style="background: #FF96D5">10</span>Lyrics and songwriting workflow</a>
+</nav>
+</details>
+<div aria-hidden="true" style="display: flex; flex-direction: column; align-items: center; gap: 4px; margin-top: 40px">
+<svg class="pen" viewBox="0 0 100 100" style="width: 104px; transform: rotate(-4deg)"><path d="M30 28L33 10L46 22Q55 19 64 22L77 10L80 28Q88 40 79 50Q55 62 31 50Q22 40 30 28Z"></path><path d="M40 37q4-4 8 0M62 37q4-4 8 0"></path><path d="M53 42h4l-2 3zM55 45q-3 4-6 1M55 45q3 4 6 1"></path><path d="M37 44L22 41M37 48L23 51M73 44L88 41M73 48L87 51"></path><path d="M36 55Q28 74 34 92H76Q82 74 74 55"></path><path d="M47 92v-8M63 92v-8"></path><path d="M76 89Q96 87 92 69Q90 61 84 65"></path></svg>
+<span class="scrap" style="font-size: 26px; color: var(--hand); transform: rotate(-3deg)">practice buddy</span>
+</div>
+</aside>
+
+<article style="flex: 999 1 560px; min-width: 0; background: #FFFFFF; border-radius: 32px; padding: 36px 40px 44px; box-sizing: border-box">
+<p style="margin: 0 0 14px; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; font-size: 15px; color: var(--muted)"><span style="display: inline-flex; align-items: center; gap: 10px"><span class="tdot" style="background: #FF8A7A">1</span>Module 01 · Intervals: the atoms of music</span><span class="hand" style="font-size: 26px; color: var(--hand); transform: rotate(-3deg)">lesson 1.1, start here!</span></p>
+<h1 style="margin: 0; font-family: 'Unbounded', sans-serif; font-weight: 800; font-size: clamp(32px, 4.4vw, 50px); line-height: 1.08; letter-spacing: -0.025em">Naming and Building Intervals</h1>
+<svg aria-hidden="true" viewBox="0 0 420 22" preserveAspectRatio="none" style="display: block; width: min(100%, 360px); height: 20px; margin: 6px 0 18px; fill: none; stroke: #FF8A7A; stroke-width: 6; stroke-linecap: round"><path d="M6 14C70 2 130 20 200 10s150-8 214 2"></path></svg>
+<p style="margin: 0 0 24px; font-size: 21px; line-height: 1.45">An interval is the distance between two notes. Learn to name it, build it, find it on the neck and recognize it by ear.</p>
+<nav aria-label="In this lesson" style="display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 32px">
+<a class="pill" href="#idea"><b>01</b>The idea</a>
+<a class="pill" href="#instrument"><b>02</b>On your instrument</a>
+<a class="pill" href="#example"><b>03</b>Worked example</a>
+<a class="pill" href="#exercises"><b>04</b>Exercises</a>
+<a class="pill" href="#mistakes"><b>05</b>Common mistakes</a>
+<a class="pill" href="#check"><b>06</b>Check yourself</a>
+</nav>
+
+<div class="prose">
+<p>Everything in music, from scales and chords to melodies and riffs, is built from intervals. Once you know intervals, chords stop being memorized shapes and become transparent structures. This is the highest-leverage module in the course.</p>
+
+<h2 id="idea" class="sec"><span>01</span>The idea</h2>
+<p>An interval is the distance between two notes, measured in two ways at once:</p>
+<ul>
+<li><strong>Number</strong> (2nd, 3rd, 4th and so on): count the letter names, including both ends. C to E is C, D, E, so it is a 3rd. Always.</li>
+<li><strong>Quality</strong> (major, minor, perfect, augmented, diminished): the exact number of semitones.</li>
+</ul>
+<p style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px">The intervals inside one octave: <span class="hand" style="font-size: 26px; color: var(--hand); transform: rotate(-2deg)">learn this one cold ↓</span></p>
+<div style="overflow-x: auto">
+<table class="tbl">
+<thead><tr><th>Semitones</th><th>Name</th><th>Short</th><th>From C</th></tr></thead>
+<tbody>
+<tr><td>0</td><td>Perfect unison</td><td class="mono">P1</td><td>C–C</td></tr>
+<tr><td>1</td><td>Minor 2nd</td><td class="mono">m2</td><td>C–D♭</td></tr>
+<tr><td>2</td><td>Major 2nd</td><td class="mono">M2</td><td>C–D</td></tr>
+<tr><td>3</td><td>Minor 3rd</td><td class="mono">m3</td><td>C–E♭</td></tr>
+<tr><td>4</td><td>Major 3rd</td><td class="mono">M3</td><td>C–E</td></tr>
+<tr><td>5</td><td>Perfect 4th</td><td class="mono">P4</td><td>C–F</td></tr>
+<tr><td>6</td><td>Tritone (augmented 4th or diminished 5th)</td><td class="mono">TT</td><td>C–F♯ or C–G♭</td></tr>
+<tr style="background: var(--bg)"><td>7</td><td>Perfect 5th</td><td class="mono">P5</td><td>C–G</td></tr>
+<tr><td>8</td><td>Minor 6th</td><td class="mono">m6</td><td>C–A♭</td></tr>
+<tr><td>9</td><td>Major 6th</td><td class="mono">M6</td><td>C–A</td></tr>
+<tr><td>10</td><td>Minor 7th</td><td class="mono">m7</td><td>C–B♭</td></tr>
+<tr><td>11</td><td>Major 7th</td><td class="mono">M7</td><td>C–B</td></tr>
+<tr><td>12</td><td>Perfect octave</td><td class="mono">P8</td><td>C–C</td></tr>
+</tbody>
+</table>
+</div>
+<p>Pick a root and click through the intervals. Listen to each one played note after note and together.</p>
+
+<div style="position: relative; background: var(--bg); border-radius: 28px; padding: 22px 22px 18px; margin: 0 0 24px">
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 20px; margin: 0 0 14px">
+<label style="display: flex; flex-direction: column; gap: 4px; font-size: 14px; font-weight: 600; color: var(--muted)">Root
+<select style="min-height: 44px; min-width: 90px; padding: 0 14px; border-radius: 22px; border: 2px solid var(--soft); background: #FFFFFF; color: var(--ink); font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: 14px"><option>C</option><option>D</option><option>E</option></select></label>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<button type="button" class="btn" style="background: var(--primary); color: #FFFFFF">Melodic</button>
+<button type="button" class="btn" style="background: #FFFFFF; color: var(--ink)">Harmonic</button>
+</div>
+</div>
+<div role="group" aria-label="Interval" style="display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 16px">
+<button type="button" class="chipb" aria-pressed="false">P1</button><button type="button" class="chipb" aria-pressed="false">m2</button><button type="button" class="chipb" aria-pressed="false">M2</button><button type="button" class="chipb" aria-pressed="false">m3</button><button type="button" class="chipb" aria-pressed="false">M3</button><button type="button" class="chipb" aria-pressed="false">P4</button><button type="button" class="chipb" aria-pressed="false">TT</button><button type="button" class="chipb" aria-pressed="true" style="background: var(--primary); border-color: var(--primary); color: #FFFFFF">P5</button><button type="button" class="chipb" aria-pressed="false">m6</button><button type="button" class="chipb" aria-pressed="false">M6</button><button type="button" class="chipb" aria-pressed="false">m7</button><button type="button" class="chipb" aria-pressed="false">M7</button><button type="button" class="chipb" aria-pressed="false">P8</button>
+</div>
+<div style="background: #FFFFFF; border-radius: 20px; padding: 14px 12px 6px; overflow-x: auto">
+<svg role="img" aria-label="Fretboard, frets 1 to 8, showing every C and G" viewBox="0 0 600 176" style="display: block; width: 100%; min-width: 460px; font-family: 'Unbounded', sans-serif">
+<path d="M20 20H580M20 44H580M20 68H580M20 92H580M20 116H580M20 140H580" style="fill: none; stroke: #C9A99A; stroke-width: 2"></path>
+<path d="M20 14V146" style="fill: none; stroke: var(--ink); stroke-width: 6"></path>
+<path d="M90 16V144M160 16V144M230 16V144M300 16V144M370 16V144M440 16V144M510 16V144M580 16V144" style="fill: none; stroke: #E7CBBE; stroke-width: 3"></path>
+<circle cx="195" cy="162" r="5" style="fill: var(--soft)"></circle><circle cx="335" cy="162" r="5" style="fill: var(--soft)"></circle><circle cx="475" cy="162" r="5" style="fill: var(--soft)"></circle>
+<g style="fill: var(--primary)"><circle cx="55" cy="44" r="11"></circle><circle cx="335" cy="68" r="11"></circle><circle cx="195" cy="116" r="11"></circle><circle cx="545" cy="20" r="11"></circle><circle cx="545" cy="140" r="11"></circle></g>
+<g style="fill: var(--hand)"><circle cx="195" cy="20" r="11"></circle><circle cx="545" cy="44" r="11"></circle><circle cx="335" cy="92" r="11"></circle><circle cx="195" cy="140" r="11"></circle></g>
+<g style="fill: #FFFFFF; font-size: 10px; font-weight: 700; text-anchor: middle"><text x="55" y="47.5">1</text><text x="335" y="71.5">1</text><text x="195" y="119.5">1</text><text x="545" y="23.5">1</text><text x="545" y="143.5">1</text><text x="195" y="23.5">P5</text><text x="545" y="47.5">P5</text><text x="335" y="95.5">P5</text><text x="195" y="143.5">P5</text></g>
+</svg>
+</div>
+<p style="margin: 12px 0 0; font-size: 16px"><strong>Perfect 5th (P5)</strong> — <span class="mono">C → G</span> · 7 semitones</p>
+<p class="hand" style="position: absolute; right: 22px; bottom: -34px; margin: 0; font-size: 26px; color: var(--hand); transform: rotate(-3deg)">piano is underneath, same notes</p>
+</div>
+
+<p style="margin-top: 40px">Key facts:</p>
+<ul>
+<li>Unisons, 4ths, 5ths and octaves are <strong>perfect</strong>. They do not come in major and minor versions.</li>
+<li>2nds, 3rds, 6ths and 7ths come in <strong>major</strong> and <strong>minor</strong> versions, one semitone apart.</li>
+<li><strong>Spelling matters.</strong> C–D♯ (augmented 2nd) and C–E♭ (minor 3rd) are the same two frets but mean different things. The letter count decides the number: C to D-something is always some kind of 2nd.</li>
+<li><strong>Inversions add up to 9.</strong> Flip an interval upside down and a 3rd becomes a 6th, a 2nd becomes a 7th, a 4th becomes a 5th. Major becomes minor and perfect stays perfect.</li>
+</ul>
+
+<h2 id="instrument" class="sec"><span>02</span>On your instrument</h2>
+<p><strong>Guitar: interval shapes are movable.</strong> Learn each interval as a small hand shape and it works everywhere on the neck. With the lower note on string 6 or 5, and “next string” meaning the next thinner one:</p>
+<div style="overflow-x: auto">
+<table class="tbl">
+<thead><tr><th>Interval</th><th>Shape</th><th>Example from 6:5 (A)</th></tr></thead>
+<tbody>
+<tr><td class="mono">m3</td><td>next string, 2 frets lower</td><td>5:3 (C)</td></tr>
+<tr><td class="mono">M3</td><td>next string, 1 fret lower</td><td>5:4 (C♯)</td></tr>
+<tr><td class="mono">P4</td><td>next string, same fret</td><td>5:5 (D)</td></tr>
+<tr><td class="mono">P5</td><td>next string, 2 frets higher</td><td>5:7 (E). This is the power chord.</td></tr>
+<tr><td class="mono">Octave</td><td>two strings over, 2 frets higher</td><td>4:7 (A)</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>The B-string rule.</strong> Strings are tuned a 4th apart, except strings 3 and 2 (G to B), which are a major 3rd apart. Whenever a shape crosses from string 3 to string 2, move the higher note <strong>one fret up</strong>. The octave from 4:5 is 2:8, not 2:7.</p>
+
+<h2 id="example" class="sec"><span>03</span>Worked example</h2>
+<p>The “Smoke on the Water” riff, written as intervals above the first note G:</p>
+<div style="background: var(--ink); color: #FFFFFF; border-radius: 24px; padding: 22px 24px; margin: 0 0 20px">
+<p style="margin: 0 0 10px; font-family: 'Unbounded', sans-serif; font-weight: 500; font-size: 13px; color: #FFD84A">tab · intervals under each note</p>
+<pre class="mono" style="margin: 0; font-size: 16px; line-height: 1.45; overflow-x: auto">G|------3---5-------3---6-5-------3---5---3-----|
+D|--5-------------5-------------5-----------5---|
+    1   ♭3  4     1   ♭3  ♭5 4  1   ♭3  4   ♭3  1</pre>
+<p class="hand" style="margin: 10px 0 0; font-size: 26px; color: #FFD84A">only four notes!</p>
+</div>
+<p>Three things to notice. The riff uses only four notes: root, minor 3rd, perfect 4th and the tritone as a passing note. The first move, root to ♭3, is a minor 3rd: next string, 2 frets lower. And the famous “wrong” note is the tritone, which immediately falls a semitone to the 4th.</p>
+
+<h2 id="exercises" class="sec"><span>04</span>Exercises</h2>
+<div class="ex"><span>1</span><p><strong>Spelling drill (paper, 10 minutes a day for a week).</strong> Write every interval from m2 to M7 above these roots: C, G, D, A, E, B♭, E♭, F♯. Then write them below the same roots.</p></div>
+<div class="ex"><span>2</span><p><strong>Shape drill (guitar, 5 minutes a day).</strong> Pick a random fret on string 6. Play the m3, M3, P4, P5, m7 and octave above it. Say the note names out loud.</p></div>
+<div class="ex"><span>3</span><p><strong>Ear drill.</strong> Use the trainer in lesson 1.3. The goal for two weeks: 90% on ascending intervals, then descending, then harmonic.</p></div>
+<div class="ex"><span>4</span><p><strong>Real-music hunt.</strong> Take three riffs or melodies you already play. Label the interval between every pair of neighboring notes.</p></div>
+
+<h2 id="mistakes" class="sec"><span>05</span>Common mistakes</h2>
+<div class="mis"><svg aria-hidden="true" viewBox="0 0 26 26"><path d="M4 5l18 17M21 4L5 22"></path></svg><p><strong>Counting semitones only.</strong> “Three semitones” tells you the size, not the name. Count letters first, then semitones.</p></div>
+<div class="mis"><svg aria-hidden="true" viewBox="0 0 26 26"><path d="M4 5l18 17M21 4L5 22"></path></svg><p><strong>Forgetting the B-string rule</strong> and wondering why a shape sounds wrong on the top strings.</p></div>
+<div class="mis"><svg aria-hidden="true" viewBox="0 0 26 26"><path d="M4 5l18 17M21 4L5 22"></path></svg><p><strong>Learning intervals only upward.</strong> Riffs and melodies go down just as often. Practice both directions from day one.</p></div>
+
+<h2 id="check" class="sec"><span>06</span>Check yourself</h2>
+<div style="background: var(--bg); border-radius: 28px; padding: 24px">
+<div style="display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; margin: 0 0 12px">
+<p style="margin: 0; font-weight: 600; font-size: 20px">Name the interval: C up to E♭</p>
+<span class="hand" style="font-size: 26px; color: var(--hand); transform: rotate(-3deg)">no peeking at the table</span>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px">
+<button type="button" class="chipb" style="min-width: 72px">m3</button><button type="button" class="chipb" style="min-width: 72px">M3</button><button type="button" class="chipb" style="min-width: 72px">A2</button><button type="button" class="chipb" style="min-width: 72px">P4</button>
+</div>
+<p style="margin: 0; font-size: 15px; color: var(--muted)">Score: 0 / 0</p>
+</div>
+</div>
+
+<nav aria-label="Pagination" style="display: flex; flex-wrap: wrap; gap: 14px; margin-top: 48px">
+<a class="pg" href="#top" style="background: var(--bg)"><small>← Previous</small><span>How to Use This Course</span></a>
+<a class="pg" href="#top" style="background: var(--bg); text-align: right"><small>Next →</small><span>Consonance, Dissonance and Interval Character</span></a>
+</nav>
+</article>
+
+<div style="flex: 1 1 200px; max-width: 100%; min-width: 0; display: flex; flex-direction: column; align-items: center">
+<div class="sticky m1" style="width: 200px; background: #FFE873; transform: rotate(2deg)"><span class="tape" aria-hidden="true"></span><h3>perfect = 1, 4, 5, 8</h3><p>No major or minor versions of these.</p></div>
+<div class="sticky m2" style="width: 200px; background: #FFB8D9; transform: rotate(-2.5deg)"><span class="tape" aria-hidden="true"></span><h3>B-string rule!!</h3><p>Crossing from string 3 to string 2? Higher note goes one fret up.</p></div>
+<div class="m3" aria-hidden="true" style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+<span class="scrap" style="font-size: 28px; color: var(--hand); transform: rotate(-4deg)">count letters first</span>
+<svg class="pencil" viewBox="0 0 70 40" style="width: 60px"><path d="M4 34L14 6l6 28L30 6l6 28L46 6l6 28L62 6"></path></svg>
+</div>
+</div>
+
+</div>
+
+<footer class="ft" style="position: relative; background: var(--ink); color: #FFFFFF; border-radius: 40px 40px 0 0">
+<div style="max-width: 1200px; margin: 0 auto; padding: 48px 24px 28px; box-sizing: border-box">
+<div style="display: flex; flex-wrap: wrap; align-items: flex-start; gap: 36px 56px">
+<div style="flex: 2 1 300px; min-width: 0">
+<p style="margin: 0 0 10px; font-family: 'Unbounded', sans-serif; font-weight: 800; font-size: 20px">From Theory to Songs</p>
+<p style="margin: 0 0 16px; max-width: 26em; font-size: 16px; color: rgba(255,255,255,.78)">A course in music theory, harmony and songwriting for guitarists. In Ukrainian and English, free.</p>
+<p style="margin: 0; display: inline-flex; align-items: center; gap: 8px; transform: rotate(-2deg); transform-origin: left center"><span class="scrap" style="font-size: 25px; color: #FFD84A">Proudly made in Ukraine</span><svg aria-hidden="true" viewBox="0 0 42 30" style="width: 32px; flex: 0 0 auto; stroke: #FFFFFF; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M5 5Q13 2 21 5T37 5V15Q29 12 21 15T5 15Z" style="fill: #0057B7; stroke: none"></path><path d="M5 15Q13 12 21 15T37 15V25Q29 22 21 25T5 25Z" style="fill: #FFD700; stroke: none"></path><path d="M5 5Q13 2 21 5T37 5V25Q29 22 21 25T5 25" style="fill: none"></path><path d="M4 2V29" style="fill: none"></path></svg></p>
+</div>
+<nav aria-label="Footer" style="flex: 1 1 160px; min-width: 0">
+<p class="ft-h">COURSE</p>
+<a class="ft-l" href="#top">Course contents</a>
+<a class="ft-l" href="#top">Practice tools</a>
+<a class="ft-l" href="#top">Українською</a>
+</nav>
+<div style="flex: 1 1 280px; min-width: 0">
+<p class="ft-h">SUPPORT</p>
+<div style="display: flex; flex-direction: column; align-items: flex-start; gap: 12px">
+<a class="ft-btn" href="#top" style="background: var(--primary); color: #FFFFFF"><svg aria-hidden="true" viewBox="0 0 60 60" style="width: 20px; fill: none; stroke: #FFFFFF; stroke-width: 6; stroke-linecap: round; stroke-linejoin: round"><path d="M30 52C8 36 6 22 14 14c7-6 14-2 16 4 2-6 9-10 16-4 8 8 6 22-16 38z"></path></svg>Support the creator</a>
+<a class="ft-btn" href="#top" style="background: #FFD700; color: #2B1420"><svg aria-hidden="true" viewBox="0 0 42 30" style="width: 32px; flex: 0 0 auto; stroke: #2B1420; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M5 5Q13 2 21 5T37 5V15Q29 12 21 15T5 15Z" style="fill: #0057B7; stroke: none"></path><path d="M5 15Q13 12 21 15T37 15V25Q29 22 21 25T5 25Z" style="fill: #FFD700; stroke: none"></path><path d="M5 5Q13 2 21 5T37 5V25Q29 22 21 25T5 25" style="fill: none"></path><path d="M4 2V29" style="fill: none"></path></svg>Support Ukraine’s defence</a>
+</div>
+</div>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 32px; margin-top: 36px; padding-top: 18px; border-top: 2px solid rgba(255,255,255,.16); font-size: 15px; color: rgba(255,255,255,.78)">
+<span>Compiled by AI at the request and to the requirements of Taras Konkevych · <a href="mailto:tkonkevych@gmail.com">tkonkevych@gmail.com</a></span>
+<span>© 2026 From Theory to Songs</span>
+</div>
+</div>
+</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":4700}}'>
+class Component extends DCLogic {
+renderVals() {
+const p = { bg: '#FFF1E8', soft: '#FFDCC8', ink: '#2B1420', muted: '#6B4A52', primary: '#D83A17', near: '#FFC2A6', hand: '#7A2BD6', tape: 'rgba(216,58,23,.26)' };
+return { p };
+}
+}
+</script>
+</body>
+</html>

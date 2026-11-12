@@ -128,5 +128,7 @@
   { "id": "c.mMaj7", "en": "m(maj7)", "uk": "m(maj7)" },
   { "id": "c.7sus4", "en": "7sus4", "uk": "7sus4" },
   { "id": "c.m9", "en": "m9", "uk": "m9" },
-  { "id": "c.9", "en": "9", "uk": "9" }
+  { "id": "c.9", "en": "9", "uk": "9" },
+  { "id": "kwLabel", "en": "Keys on the circle of fifths", "uk": "Тональності на квінтовому колі" },
+  { "id": "kwHint", "en": "Outside = major, inside = minor. The lit-up ones are the chords you’ll use most.", "uk": "Зовні мажор, усередині мінор. Підсвічені — це акорди, які ти гратимеш найчастіше." }
 ]

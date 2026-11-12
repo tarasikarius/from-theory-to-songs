@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   parseNote, noteName, pc, transpose, intervalName, scaleNotes, chordNotes,
   diatonicChords, romanToChord, noteToMidi, fretMidi, TUNINGS, midiToPc,
-  chordMidi, keySignature, relativeMinor,
+  chordMidi, keySignature, relativeMinor, keyCoreChords, CIRCLE_MAJOR,
 } from '../src/lib/theory';
 
 const names = (ns: { letter: number; acc: number }[]) => ns.map(noteName).join(' ');
@@ -141,5 +141,24 @@ describe('fretboard', () => {
     expect(fretMidi(TUNINGS.standard, 1, 7)).toBe(52); // E3
     expect(fretMidi(TUNINGS.standard, 5, 0)).toBe(64); // E4
     expect(fretMidi(TUNINGS.dropD, 0, 0)).toBe(38);
+  });
+});
+
+describe('keyCoreChords', () => {
+  // Expectations from the approved design board, clockwise from C: [key, IV, V, vi] and [rel. minor, iv, v, bIII].
+  const MAJ = ['C F G Am', 'G C D Em', 'D G A Bm', 'A D E F#m', 'E A B C#m', 'B E F# G#m', 'F# B C# D#m',
+    'Db Gb Ab Bbm', 'Ab Db Eb Fm', 'Eb Ab Bb Cm', 'Bb Eb F Gm', 'F Bb C Dm'];
+  const MIN = ['Am Dm Em C', 'Em Am Bm G', 'Bm Em F#m D', 'F#m Bm C#m A', 'C#m F#m G#m E', 'G#m C#m D#m B',
+    'D#m G#m A#m F#', 'Bbm Ebm Fm Db', 'Fm Bbm Cm Ab', 'Cm Fm Gm Eb', 'Gm Cm Dm Bb', 'Dm Gm Am F'];
+  it('spells all 24 keys of the circle', () => {
+    CIRCLE_MAJOR.forEach((k, i) => {
+      const t = parseNote(k);
+      expect(keyCoreChords(t, 'major').map(c => c.symbol).join(' ')).toBe(MAJ[i]);
+      expect(keyCoreChords(relativeMinor(t), 'minor').map(c => c.symbol).join(' ')).toBe(MIN[i]);
+    });
+  });
+  it('labels the numerals', () => {
+    expect(keyCoreChords(parseNote('G'), 'major').map(c => c.numeral).join(' ')).toBe('I IV V vi');
+    expect(keyCoreChords(parseNote('E'), 'minor').map(c => c.numeral).join(' ')).toBe('i iv v bIII');
   });
 });

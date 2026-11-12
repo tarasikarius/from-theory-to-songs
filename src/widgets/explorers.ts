@@ -1,7 +1,7 @@
-// <scale-explorer>, <chord-explorer>, <interval-explorer>, <circle-of-fifths>
+// <scale-explorer>, <chord-explorer>, <interval-explorer>, <circle-of-fifths>, <key-wheel>
 import {
   CHORDS, CIRCLE_MAJOR, ROOTS, SCALES, SIMPLE_INTERVALS, simpleInterval, chordMidi, chordNotes, chordSymbol, diatonicChords,
-  keySignature, noteName, noteToMidi, parseNote, pc, pcMap, pretty, relativeMinor, scaleNotes, transposeBy,
+  keyCoreChords, keySignature, noteName, noteToMidi, parseNote, pc, pcMap, pretty, relativeMinor, scaleNotes, transposeBy,
   type Note,
 } from '../lib/theory';
 import { playChord, playSequence, startDrone } from '../lib/audio';
@@ -240,6 +240,59 @@ export class CircleOfFifths extends Widget {
           }, h('small', {}, pretty(ch.numeral)), ' ', pretty(ch.symbol))))),
         ),
       );
+    };
+    update();
+  }
+}
+
+/** Circle of fifths as two rings of buttons: majors outside, relative minors inside.
+ *  Picking a key lights up its neighbours and lists the four chords it uses most. */
+export class KeyWheel extends Widget {
+  build() {
+    let sel = Math.max(0, CIRCLE_MAJOR.indexOf(this.attr('tonic', 'G')));
+    let minor = this.attr('mode') === 'minor';
+    const keyName = (i: number, inner: boolean) => {
+      const t = parseNote(CIRCLE_MAJOR[i]);
+      return pretty(noteName(inner ? relativeMinor(t) : t)) + (inner ? 'm' : '');
+    };
+    const disc = h('div', { class: 'kw-disc', role: 'group', 'aria-label': t('kwLabel') });
+    const keys: { el: HTMLButtonElement; i: number; inner: boolean }[] = [];
+    for (const inner of [false, true]) {
+      CIRCLE_MAJOR.forEach((_, i) => {
+        const a = i * Math.PI / 6, r = inner ? 27 : 43;
+        const el = h('button', {
+          type: 'button', class: `kw-key ${inner ? 'is-inner' : 'is-outer'}`,
+          'aria-label': `${keyName(i, inner)}: ${inner ? t('minor') : t('major')}`,
+          onClick: () => { sel = i; minor = inner; update(); play(0); },
+        }, keyName(i, inner));
+        el.style.left = (50 + r * Math.sin(a)).toFixed(2) + '%';
+        el.style.top = (50 - r * Math.cos(a)).toFixed(2) + '%';
+        keys.push({ el, i, inner });
+        disc.append(el);
+      });
+    }
+    const centre = h('div', { class: 'kw-center', 'aria-live': 'polite' });
+    disc.append(centre);
+    const chips = h('div', { class: 'kw-chips' });
+    this.append(disc, h('p', { class: 'kw-note' }, t('kwHint')), chips);
+
+    const chords = () => {
+      const t0 = parseNote(CIRCLE_MAJOR[sel]);
+      return minor ? keyCoreChords(relativeMinor(t0), 'minor') : keyCoreChords(t0, 'major');
+    };
+    const play = (n: number) => playChord(chordMidi(chords()[n].notes, 3), { voice: 'keys', dur: 1.4 });
+    const update = () => {
+      for (const k of keys) {
+        const same = k.inner === minor;
+        const on = same && k.i === sel;
+        const near = same ? (k.i === (sel + 1) % 12 || k.i === (sel + 11) % 12) : k.i === sel;
+        k.el.setAttribute('aria-pressed', String(on));
+        k.el.classList.toggle('is-near', near && !on);
+      }
+      centre.replaceChildren(h('b', {}, keyName(sel, minor)), h('span', {}, minor ? t('minor') : t('major')));
+      chips.replaceChildren(...chords().map((c, n) => h('button', {
+        type: 'button', class: 'kw-chip', onClick: () => play(n),
+      }, h('b', {}, pretty(c.symbol)), h('span', {}, pretty(c.numeral)))));
     };
     update();
   }
