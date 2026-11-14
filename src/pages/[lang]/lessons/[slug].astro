@@ -1,6 +1,7 @@
 ---
 import { render } from 'astro:content';
 import Base from '../../../layouts/Base.astro';
+import TableWrap from '../../../components/TableWrap.astro';
 import { LANGS, ui, moduleTitles, href, type Lang } from '../../../i18n/ui';
 import { getLessons, byModule, type Lesson } from '../../../lib/course';
 import { modStyle, modLabel } from '../../../lib/modules';
@@ -65,7 +66,7 @@ const m = lesson.data.module;
           {sections.map((h, i) => <a href={`#${h.slug}`}><span class="nav-num">{pad(i + 1)}</span>{h.text}</a>)}
         </nav>
       )}
-      <div class="prose"><Content /></div>
+      <div class="prose"><Content components={{ table: TableWrap }} /></div>
       <nav class="pager" aria-label="Pagination">
         {prev ? <a class="prev" href={href(`/${lang}/lessons/${prev.slug}/`)}><small>← {s.prev}</small><span>{prev.data.title}</span></a> : <span />}
         {next ? <a class="next" href={href(`/${lang}/lessons/${next.slug}/`)}><small>{s.next} →</small><span>{next.data.title}</span></a> : <span />}

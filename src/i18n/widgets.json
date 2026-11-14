@@ -90,6 +90,7 @@
   { "id": "hat", "en": "Hi-hat", "uk": "Хай-хет" },
   { "id": "riff", "en": "Riff (chug)", "uk": "Риф (чаг)" },
   { "id": "clear", "en": "Clear", "uk": "Очистити" },
+  { "id": "gridDefault", "en": "Default", "uk": "Початковий ритм" },
   { "id": "clickFret", "en": "Click any fret or key to hear it.", "uk": "Натисніть на лад або клавішу, щоб почути ноту." },
   { "id": "majorKey", "en": "Major key", "uk": "Мажор" },
   { "id": "minorKey", "en": "Minor key", "uk": "Мінор" },

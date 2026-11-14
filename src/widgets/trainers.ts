@@ -84,6 +84,15 @@ export class EarTrainer extends Widget {
       answers.querySelectorAll('button').forEach(b => { b.className = 'w-chip'; (b as HTMLButtonElement).disabled = false; });
       q.play();
     };
+    /** Back to the starting state: score 0/0, no question, chips locked until "Play question". */
+    const reset = () => {
+      right = 0; total = 0; q = null; answered = false;
+      playBtn.textContent = t('hear');
+      feedback.textContent = t('pressPlay');
+      feedback.className = 'w-feedback';
+      answers.querySelectorAll('button').forEach(b => { b.className = 'w-chip'; (b as HTMLButtonElement).disabled = true; });
+      drawScore();
+    };
     for (const id of items) {
       answers.append(h('button', {
         type: 'button', class: 'w-chip', disabled: true, 'data-id': id, title: title(id),
@@ -111,7 +120,7 @@ export class EarTrainer extends Widget {
           [{ value: 'up', label: t('up') }, { value: 'down', label: t('down') }, { value: 'together', label: t('together') }],
           direction, v => { direction = v; })),
         h('div', { class: 'w-actions' }, playBtn,
-          button(t('reset'), () => { right = 0; total = 0; drawScore(); }))),
+          button(t('reset'), reset))),
       answers, feedback, score);
   }
 }

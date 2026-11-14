@@ -260,8 +260,23 @@ main { display: block; }
 .prose blockquote { position: relative; margin: 1.8em 0; padding: 30px 24px 22px; background: #ffe873; box-shadow: var(--shadow); transform: rotate(-0.6deg); }
 .prose blockquote::before { content: ''; position: absolute; top: -13px; left: 50%; width: 96px; height: 26px; margin-left: -48px; background: var(--tape); }
 .prose blockquote p:last-child { margin-bottom: 0; }
+.prose td [id] { scroll-margin-top: 48px; }
+/* Highlighter pen. */
+.prose mark { color: inherit; background: linear-gradient(transparent 14%, #ffe873 14%, #ffe873 90%, transparent 90%); padding: 0 2px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+/* Lesson 1.1: handwritten labels under "6:5 (A)" (string, fret, note), with curved arrows. */
+.sf-anno { display: inline-block; padding-bottom: 50px; }
+.sfa { position: relative; display: inline-block; }
+.sfa::before { content: ''; position: absolute; top: 100%; left: 50%; width: 24px; height: 26px; margin-left: -12px; background: var(--accent-fill); -webkit-mask: var(--arrow) center / contain no-repeat; mask: var(--arrow) center / contain no-repeat; }
+.sfa::after { content: attr(data-label); position: absolute; top: calc(100% + 22px); font-family: var(--font-hand); font-weight: 700; font-size: 1.15rem; line-height: 1; color: var(--accent-fill); white-space: nowrap; }
+.sfa-l { --arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 28' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 26C4 15 9 8 12 3'/%3E%3Cpath d='M7.5 5.5L12 2.5L13.5 7.5'/%3E%3C/svg%3E"); }
+.sfa-c { --arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 28' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 26C9 18 15 10 12 3'/%3E%3Cpath d='M8.5 6.5L12 2.5L15.5 6.5'/%3E%3C/svg%3E"); }
+.sfa-r { --arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 28' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 26C20 15 15 8 12 3'/%3E%3Cpath d='M16.5 5.5L12 2.5L10.5 7.5'/%3E%3C/svg%3E"); }
+.sfa-l::after { right: calc(50% + 6px); }
+.sfa-c::after { left: 50%; transform: translateX(-50%); }
+.sfa-r::after { left: calc(50% + 6px); }
 .prose blockquote p:first-child > strong:first-child { display: block; font-family: var(--font-hand); font-weight: 700; font-size: 1.9rem; line-height: 1.1; margin-bottom: 0.25em; }
-.prose table { display: block; overflow-x: auto; width: 100%; border-collapse: separate; border-spacing: 0; margin: 0 0 1.4em; font-size: 0.93rem; border: 2px solid var(--soft); border-radius: 20px; }
+.prose .table-wrap { overflow-x: auto; margin: 0 0 1.4em; border: 2px solid var(--soft); border-radius: 20px; }
+.prose table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.93rem; }
 .prose th, .prose td { padding: 10px 14px; text-align: left; vertical-align: top; }
 .prose td { border-top: 2px solid var(--soft); }
 .prose th { background: var(--bg); font-family: var(--font-head); font-weight: 500; font-size: 0.78rem; white-space: nowrap; }
@@ -283,6 +298,24 @@ main { display: block; }
 .w-check { display: inline-flex; align-items: center; gap: 8px; font-size: 0.92rem; min-height: 44px; }
 .widget select, .widget input[type='text'] { font: inherit; font-size: 0.95rem; color: var(--text); background: var(--surface); border: 2px solid var(--soft); border-radius: 22px; padding: 0 14px; height: 44px; max-width: 100%; }
 .widget select { font-family: var(--font-head); font-weight: 700; font-size: 0.85rem; }
+/* Dropdowns: no native arrow; a soft, round-capped chevron in the accent colour instead. */
+.widget select {
+  appearance: none; -webkit-appearance: none; cursor: pointer; padding-right: 40px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 9'%3E%3Cpath d='M2 2l5 5 5-5' fill='none' stroke='%23d83a17' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 16px center; background-size: 13px 9px;
+}
+.widget select:hover { border-color: var(--accent-soft); }
+/* Chromium: style the open list too. Other browsers keep their native list. */
+@supports (appearance: base-select) {
+  .widget select, .widget select::picker(select) { appearance: base-select; }
+  .widget select { align-items: center; }
+  .widget select::picker-icon { display: none; }
+  .widget select::picker(select) { margin-top: 6px; padding: 6px; border: 2px solid var(--soft); border-radius: 18px; background: var(--surface); box-shadow: var(--shadow); }
+  .widget select option { padding: 8px 14px; border-radius: 12px; font-family: var(--font-head); font-weight: 700; font-size: 0.85rem; }
+  .widget select option:hover, .widget select option:focus-visible { background: var(--accent-soft); outline: none; }
+  .widget select option:checked { background: var(--accent-fill); color: var(--accent-ink); }
+  .widget select option::checkmark { display: none; }
+}
 .widget input[type='text'] { min-width: 220px; font-family: var(--font-mono); }
 .widget input[type='range'] { accent-color: var(--accent-fill); width: 170px; height: 44px; max-width: 100%; }
 .widget input[type='checkbox'] { accent-color: var(--accent-fill); width: 18px; height: 18px; }
@@ -339,7 +372,7 @@ fret-board, piano-keys { display: block; }
 .fb-pos.is-sounding .fb-hit { fill: #ffffff; opacity: 0.3; }
 
 .pk { display: block; width: 100%; max-width: 460px; min-width: 300px; height: auto; }
-.pk-key { cursor: pointer; outline: none; }
+.pk-key { cursor: pointer; outline: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
 .pk-white .pk-rect { fill: var(--key-white); stroke: var(--line-strong); stroke-width: 1; }
 .pk-black .pk-rect { fill: var(--key-black); stroke: var(--key-black); }
 .pk-key:hover .pk-rect { filter: brightness(0.94); }
@@ -348,7 +381,7 @@ fret-board, piano-keys { display: block; }
 .pk-lab { font: 600 10px var(--font-mono); fill: var(--note-ink); text-anchor: middle; pointer-events: none; }
 .pk-lab-s { font-size: 8.5px; }
 .pk-c { font: 9px var(--font-mono); fill: var(--muted); text-anchor: middle; }
-.pk-key.is-sounding .pk-rect { fill: var(--accent-soft); }
+.pk-key.is-sounding .pk-rect, .pk-key.is-held .pk-rect { fill: var(--accent-soft); }
 .pk-key:focus-visible .pk-rect { stroke: var(--hand); stroke-width: 3; }
 
 .cof-wrap { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; align-items: center; }

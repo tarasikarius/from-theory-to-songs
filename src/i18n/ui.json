@@ -76,7 +76,7 @@
   { "id": "vityaCaption", "en": "from Vitya", "uk": "from Vitya" },
   { "id": "guitaristAlt", "en": "Cartoon guitarist playing a striped V-shaped guitar", "uk": "Мультяшний гітарист зі смугастою гітарою у формі V" },
   { "id": "practiceBuddy", "en": "practice buddy", "uk": "напарник по заняттях" },
-  { "id": "footerAbout", "en": "A course in music theory, harmony and songwriting for guitarists. In Ukrainian and English, free.", "uk": "Курс теорії музики, гармонії та написання пісень для гітаристів. Українською та англійською, безкоштовно." },
+  { "id": "footerAbout", "en": "A course in music theory, harmony and songwriting for guitarists. In Ukrainian and English.", "uk": "Курс теорії музики, гармонії та написання пісень для гітаристів. Українською та англійською." },
   { "id": "supportCreator", "en": "Support the creator", "uk": "Підтримати автора" },
   { "id": "supportCreatorNote", "en": "If you want to support the creator, scan the code or tap the button.", "uk": "Якщо хочете підтримати автора, відскануйте код або натисніть кнопку." },
   { "id": "supportCreatorQr", "en": "QR code for a donation to the creator", "uk": "QR-код для донату автору" },

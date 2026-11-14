@@ -183,7 +183,8 @@ export class BeatGrid extends Widget {
     const src = this.attr('pattern') || GRID_PRESETS[this.attr('preset', 'rock')] || GRID_PRESETS.rock;
     const steps = parseInt(this.attr('steps', '16'), 10);
     const group = parseInt(this.attr('group', '4'), 10);
-    let bpm = parseInt(this.attr('bpm', '100'), 10);
+    const startBpm = parseInt(this.attr('bpm', '100'), 10);
+    let bpm = startBpm;
     const grid: Record<Drum, boolean[]> = { hat: [], snare: [], kick: [], chug: [] };
     for (const r of ROWS) grid[r] = Array(steps).fill(false);
     for (const part of src.split('|')) {
@@ -191,6 +192,8 @@ export class BeatGrid extends Widget {
       const row = ROW_KEY[name.trim()];
       if (row) [...pat.trim()].slice(0, steps).forEach((ch, i) => { grid[row][i] = ch === 'x'; });
     }
+    const start: Record<Drum, boolean[]> = { hat: [...grid.hat], snare: [...grid.snare], kick: [...grid.kick], chug: [...grid.chug] };
+    const startEmpty = ROWS.every(r => !start[r].some(Boolean));
     const rows = this.hasAttribute('riff') || grid.chug.some(Boolean) ? ROWS : ROWS.slice(0, 3);
     const table = h('div', { class: 'bg-grid', style: `--steps:${steps}` });
     const cells: HTMLElement[][] = [];
@@ -212,6 +215,7 @@ export class BeatGrid extends Widget {
             grid[r][i] = !grid[r][i];
             cell.setAttribute('aria-pressed', String(grid[r][i]));
             if (grid[r][i]) drum(r, now());
+            drawClear();
           },
         });
         cells[cells.length - 1].push(cell);
@@ -237,11 +241,23 @@ export class BeatGrid extends Widget {
         }, Math.max(0, (time - now()) * 1000));
       });
     }, 'w-primary');
+    // "Clear" empties the grid; once it is empty the same button turns into "Default", which restores
+    // this instance's starting pattern and tempo. A grid that starts empty keeps plain "Clear".
+    const isEmpty = () => rows.every(r => !grid[r].some(Boolean));
+    const clearBtn = button(t('clear'), () => {
+      const restore = !startEmpty && isEmpty();
+      rows.forEach((r, ri) => {
+        for (let i = 0; i < steps; i++) grid[r][i] = restore ? start[r][i] : false;
+        cells[ri].forEach((c, i) => c.setAttribute('aria-pressed', String(grid[r][i])));
+      });
+      if (restore) { bpm = startBpm; slider.value = String(bpm); out.textContent = String(bpm); }
+      drawClear();
+    });
+    const drawClear = () => { clearBtn.textContent = !startEmpty && isEmpty() ? t('gridDefault') : t('clear'); };
     this.append(
       h('div', { class: 'w-controls' },
         h('label', { class: 'w-field' }, h('span', { class: 'w-label' }, `${t('tempo')}: `, out, ` ${t('bpm')}`), slider),
-        h('div', { class: 'w-actions' }, btn,
-          button(t('clear'), () => { for (const r of rows) grid[r].fill(false); table.querySelectorAll('.bg-cell').forEach(c => c.setAttribute('aria-pressed', 'false')); }))),
+        h('div', { class: 'w-actions' }, btn, clearBtn)),
       h('div', { class: 'w-scroll' }, table));
   }
 }

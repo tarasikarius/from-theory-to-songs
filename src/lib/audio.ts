@@ -76,6 +76,55 @@ export function playNote(midi: number, opts: NoteOpts = {}): void {
   o1.stop(t + dur + 0.05); o2.stop(t + dur + 0.05);
 }
 
+/** How long a held piano note rings before it has died away: about 9 s at C3, 5 s at C5. */
+export function ringTime(midi: number): number {
+  return Math.min(12, Math.max(3, 9 * Math.pow(2, -(midi - 48) / 28)));
+}
+
+/**
+ * Piano-style held note: sounds until released, and dies away on its own if held long enough.
+ * Returns a release function (the damper); calling it more than once is harmless.
+ */
+export function holdNote(midi: number, opts: { gain?: number } = {}): () => void {
+  const ac = audio();
+  const t = ac.currentTime + 0.005;
+  const peak = opts.gain ?? 0.24;
+  const freq = midiToFreq(midi);
+  const ring = ringTime(midi);
+
+  const g = ac.createGain();
+  const f = ac.createBiquadFilter();
+  f.type = 'lowpass';
+  f.frequency.setValueAtTime(Math.min(freq * 6, 7000), t);
+  f.frequency.exponentialRampToValueAtTime(Math.max(freq * 2, 400), t + ring * 0.5);
+  const o1 = ac.createOscillator();
+  const o2 = ac.createOscillator();
+  o1.type = 'triangle'; o2.type = 'sine';
+  o1.frequency.value = freq;
+  o2.frequency.value = freq;
+  o2.detune.value = 6;
+  // fast attack, quick drop after the hammer strike, then a long tail
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(peak, t + 0.008);
+  g.gain.exponentialRampToValueAtTime(peak * 0.5, t + 0.3);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + ring);
+  o1.connect(f); o2.connect(f); f.connect(g); g.connect(out());
+  o1.start(t); o2.start(t);
+  o1.stop(t + ring + 0.05); o2.stop(t + ring + 0.05);
+
+  let released = false;
+  return () => {
+    if (released) return;
+    released = true;
+    const r = Math.max(ac.currentTime, t + 0.03); // let a very short tap still sound
+    if (r >= t + ring) return; // already silent
+    if (typeof g.gain.cancelAndHoldAtTime === 'function') g.gain.cancelAndHoldAtTime(r);
+    else { g.gain.cancelScheduledValues(r); g.gain.setValueAtTime(g.gain.value, r); }
+    g.gain.setTargetAtTime(0, r, 0.04);
+    o1.stop(r + 0.3); o2.stop(r + 0.3);
+  };
+}
+
 export function playChord(midis: number[], opts: NoteOpts & { strum?: number } = {}): void {
   const t = opts.when ?? now();
   const strum = opts.strum ?? 0.025;

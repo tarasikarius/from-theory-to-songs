@@ -1,0 +1,6 @@
+---
+// Replaces <table> in lesson MDX. The wrapper scrolls on narrow screens and draws the frame,
+// so the table itself can be a real table at full width and its rows fill the frame.
+const props = Astro.props;
+---
+<div class="table-wrap"><table {...props}><slot /></table></div>
