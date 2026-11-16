@@ -263,6 +263,10 @@ main { display: block; }
 .prose td [id] { scroll-margin-top: 48px; }
 /* Highlighter pen. */
 .prose mark { color: inherit; background: linear-gradient(transparent 14%, #ffe873 14%, #ffe873 90%, transparent 90%); padding: 0 2px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+/* "Also on the tools page" caption right under a lesson widget that copies a tools-page widget. */
+.prose .widget:has(+ .tool-note) { margin-bottom: 0.45em; }
+.prose .tool-note { margin: 0 0 1.8em; padding-left: 6px; font-size: 0.85rem; font-style: italic; line-height: 1.4; color: var(--muted); }
+.prose .tool-note::before { content: '* '; }
 /* Lesson 1.1: handwritten labels under "6:5 (A)" (string, fret, note), with curved arrows. */
 .sf-anno { display: inline-block; padding-bottom: 50px; }
 .sfa { position: relative; display: inline-block; }

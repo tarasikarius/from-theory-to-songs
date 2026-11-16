@@ -1,7 +1,7 @@
 // <ear-trainer> and <quiz-box>
 import {
   chordMidi, chordNotes, chordSymbol, diatonicChords, intervalName, keySignature, noteName,
-  parseNote, pc, pretty, relativeMinor, romanToChord, scaleNotes, SIMPLE_INTERVALS, simpleInterval, type Note,
+  parseNote, pc, pretty, relativeMinor, romanToChord, scaleNotes, SCALES, SIMPLE_INTERVALS, simpleInterval, type Note,
 } from '../lib/theory';
 import { now, playChord, playNote, playSequence } from '../lib/audio';
 import { Widget, button, field, h, pick, select, shuffle } from './dom';
@@ -136,7 +136,13 @@ function options(answer: string, pool: string[], n = 4): string[] {
   return shuffle([answer, ...others]);
 }
 
-const GENERATORS: Record<string, () => Quiz> = {
+/** Per-instance quiz settings, read from the element's attributes. */
+interface QuizOpts { scales: string[] }
+
+/** Scales asked by `scale-notes` when the element has no valid `scales` attribute. */
+const DEFAULT_QUIZ_SCALES = ['naturalMinor', 'harmonicMinor', 'dorian', 'phrygian', 'minorPentatonic'];
+
+const GENERATORS: Record<string, (o: QuizOpts) => Quiz> = {
   'interval-up': () => {
     const root = parseNote(pick(['C', 'D', 'E', 'F', 'G', 'A', 'B', 'Bb', 'Eb', 'F#']));
     const ivs = EAR_INTERVALS.filter(i => i !== 'TT' && i !== 'P8');
@@ -214,9 +220,8 @@ const GENERATORS: Record<string, () => Quiz> = {
     const m = pick(Object.keys(map));
     return { text: t('qSignature', { m: t('s.' + m) }), options: shuffle(Object.values(map)), answer: map[m] };
   },
-  'scale-notes': () => {
+  'scale-notes': ({ scales: ids }) => {
     const root = parseNote(pick(['A', 'E', 'D', 'G', 'C', 'B']));
-    const ids = ['naturalMinor', 'harmonicMinor', 'dorian', 'phrygian', 'minorPentatonic'];
     const id = pick(ids);
     const ans = spell(scaleNotes(root, id));
     return { text: t('qTriad', { c: `${pretty(noteName(root))} ${t('s.' + id)}` }), options: options(ans, ids.map(x => spell(scaleNotes(root, x)))), answer: ans };
@@ -226,6 +231,8 @@ const GENERATORS: Record<string, () => Quiz> = {
 export class QuizBox extends Widget {
   build() {
     const types = this.list('types', ['interval-up']).filter(x => x in GENERATORS);
+    const scales = this.list('scales').filter(x => x in SCALES);
+    const quizOpts: QuizOpts = { scales: scales.length ? scales : DEFAULT_QUIZ_SCALES };
     let q: Quiz;
     let done = false;
     let right = 0, total = 0;
@@ -236,7 +243,7 @@ export class QuizBox extends Widget {
     const nextBtn = button(t('next'), () => ask(), 'w-primary');
     const drawScore = () => { score.textContent = `${t('score')}: ${right}/${total}`; };
     const ask = () => {
-      q = GENERATORS[pick(types)]();
+      q = GENERATORS[pick(types)](quizOpts);
       done = false;
       text.textContent = q.text;
       feedback.textContent = ''; feedback.className = 'w-feedback';
