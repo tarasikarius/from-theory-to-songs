@@ -42,10 +42,76 @@ abstract class Instrument extends HTMLElement {
       });
     }, delayMs);
   }
+  /** Voice used when a position is pressed. */
+  protected abstract voice: 'keys' | 'pluck';
+  /** Positions being held down: element → damper. */
+  private held = new Map<Element, () => void>();
+  /** Touches that have not yet turned into a held note: element → timer. */
+  private pending = new Map<Element, number>();
+
+  /** Start a note that sounds until release() or until it dies away. */
+  private press(midi: number, el: Element) {
+    this.release(el);
+    const stop = holdNote(midi, { voice: this.voice });
+    el.classList.add('is-held');
+    this.held.set(el, () => { stop(); el.classList.remove('is-held'); });
+  }
+  private release(el: Element) {
+    this.held.get(el)?.();
+    this.held.delete(el);
+  }
+  private clearPending(el: Element): boolean {
+    const id = this.pending.get(el);
+    if (id === undefined) return false;
+    window.clearTimeout(id);
+    this.pending.delete(el);
+    return true;
+  }
+  protected releaseAll() {
+    [...this.pending.keys()].forEach(el => this.clearPending(el));
+    [...this.held.keys()].forEach(el => this.release(el));
+  }
+  disconnectedCallback() { this.releaseAll(); }
+
+  /** Event handlers for a playable position: the note sounds while it is pressed. */
+  protected holdAttrs(midi: number): Record<string, unknown> {
+    const tap = () => { playNote(midi, { voice: this.voice }); this.flash(midi); };
+    const drop = (e: Event) => { const el = e.currentTarget as Element; this.clearPending(el); this.release(el); };
+    return {
+      onPointerdown: (e: PointerEvent) => {
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
+        const el = e.currentTarget as Element;
+        // touch captures the pointer by default; drop that so sliding off the position releases it
+        try { el.releasePointerCapture(e.pointerId); } catch { /* not captured */ }
+        if (e.pointerType !== 'touch') { this.press(midi, el); return; }
+        // a touch may be the start of a scroll: wait a moment before sounding
+        this.clearPending(el);
+        this.pending.set(el, window.setTimeout(() => { this.pending.delete(el); this.press(midi, el); }, 90));
+      },
+      onPointerup: (e: PointerEvent) => {
+        const el = e.currentTarget as Element;
+        if (this.clearPending(el)) tap(); // quick tap: fixed-length note
+        else this.release(el);
+      },
+      onPointerleave: drop,
+      onPointercancel: drop,
+      onContextmenu: (e: Event) => e.preventDefault(),
+      onKeydown: (e: KeyboardEvent) => {
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        e.preventDefault();
+        if (!e.repeat) this.press(midi, e.currentTarget as Element);
+      },
+      onKeyup: (e: KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') this.release(e.currentTarget as Element); },
+      onBlur: drop,
+      // activation with no pointer or key events (assistive tech): play a fixed-length note
+      onClick: (e: MouseEvent) => { if (e.detail === 0) tap(); },
+    };
+  }
   abstract render(): void;
 }
 
 export class FretBoard extends Instrument {
+  protected voice = 'pluck' as const;
   tuning: number[] = TUNINGS.standard;
   frets = 15;
 
@@ -64,6 +130,7 @@ export class FretBoard extends Instrument {
     const fretW = (W - padL - padR) / n;
     const x = (f: number) => padL + f * fretW;
     const y = (str: number) => padT + (5 - str) * rowH + rowH / 2; // string 0 (low) at the bottom
+    this.releaseAll();
     const svg = s('svg', { viewBox: `0 0 ${W} ${H}`, class: 'fb', role: 'img', 'aria-label': 'Guitar fretboard' });
 
     svg.append(s('rect', { x: padL, y: padT + rowH / 2 - 6, width: W - padL - padR, height: rowH * 5 + 12, class: 'fb-wood', rx: 3 }));
@@ -90,8 +157,7 @@ export class FretBoard extends Instrument {
           class: 'fb-pos' + (mark ? ` is-on ${degreeClass(mark.label)}` : '') + (mark && mark.index === 0 ? ' is-root' : ''),
           'data-midi': midi, tabindex: mark ? 0 : -1, role: 'button',
           'aria-label': `${SHARP_NAMES[midiToPc(midi)]}, string ${6 - str}, fret ${f}`,
-          onClick: () => { playNote(midi, { voice: 'pluck' }); this.flash(midi); },
-          onKeydown: (e: KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); playNote(midi); this.flash(midi); } },
+          ...this.holdAttrs(midi),
         });
         g.append(s('rect', { x: cx - fretW / 2 + 1, y: y(str) - rowH / 2, width: Math.max(fretW - 2, 14), height: rowH, class: 'fb-hit' }));
         if (mark) {
@@ -110,22 +176,7 @@ export class FretBoard extends Instrument {
 export class PianoKeys extends Instrument {
   from = 48; // C3
   octaves = 2;
-  /** Keys being held down: midi → damper. */
-  private held = new Map<number, () => void>();
-
-  /** Start a note that sounds until release() or until it dies away. */
-  private press(midi: number, el: Element) {
-    this.release(midi);
-    const stop = holdNote(midi);
-    el.classList.add('is-held');
-    this.held.set(midi, () => { stop(); el.classList.remove('is-held'); });
-  }
-  private release(midi: number) {
-    this.held.get(midi)?.();
-    this.held.delete(midi);
-  }
-  private releaseAll() { [...this.held.keys()].forEach(m => this.release(m)); }
-  disconnectedCallback() { this.releaseAll(); }
+  protected voice = 'keys' as const;
 
   render() {
     this.releaseAll();
@@ -141,25 +192,7 @@ export class PianoKeys extends Instrument {
       const g = s('g', {
         class: `pk-key ${black ? 'pk-black' : 'pk-white'}` + (mark ? ` is-on ${degreeClass(mark.label)}` : '') + (mark && mark.index === 0 ? ' is-root' : ''),
         'data-midi': midi, role: 'button', tabindex: mark ? 0 : -1, 'aria-label': SHARP_NAMES[midiToPc(midi)],
-        onPointerdown: (e: PointerEvent) => {
-          if (e.pointerType === 'mouse' && e.button !== 0) return;
-          // touch captures the pointer by default; drop that so sliding off the key releases it
-          try { g.releasePointerCapture(e.pointerId); } catch { /* not captured */ }
-          this.press(midi, g);
-        },
-        onPointerup: () => this.release(midi),
-        onPointerleave: () => this.release(midi),
-        onPointercancel: () => this.release(midi),
-        onContextmenu: (e: Event) => e.preventDefault(),
-        onKeydown: (e: KeyboardEvent) => {
-          if (e.key !== 'Enter' && e.key !== ' ') return;
-          e.preventDefault();
-          if (!e.repeat) this.press(midi, g);
-        },
-        onKeyup: (e: KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') this.release(midi); },
-        onBlur: () => this.release(midi),
-        // activation with no pointer or key events (assistive tech): play a fixed-length note
-        onClick: (e: MouseEvent) => { if (e.detail === 0) { playNote(midi, { voice: 'keys' }); this.flash(midi); } },
+        ...this.holdAttrs(midi),
       });
       g.append(s('rect', { x: kx, y: 1, width: w, height: hh, rx: 3, class: 'pk-rect' }));
       if (mark) {

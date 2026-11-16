@@ -76,37 +76,48 @@ export function playNote(midi: number, opts: NoteOpts = {}): void {
   o1.stop(t + dur + 0.05); o2.stop(t + dur + 0.05);
 }
 
-/** How long a held piano note rings before it has died away: about 9 s at C3, 5 s at C5. */
-export function ringTime(midi: number): number {
+/** How long a held note rings before it has died away. Keys: about 9 s at C3, 5 s at C5. Pluck: about 6 s at low E, 3.5 s at high E. */
+export function ringTime(midi: number, voice: 'keys' | 'pluck' = 'keys'): number {
+  if (voice === 'pluck') return Math.min(8, Math.max(2.5, 6 * Math.pow(2, -(midi - 40) / 30)));
   return Math.min(12, Math.max(3, 9 * Math.pow(2, -(midi - 48) / 28)));
 }
 
 /**
- * Piano-style held note: sounds until released, and dies away on its own if held long enough.
+ * Held note (piano key or guitar string): sounds until released, and dies away on its own if held long enough.
  * Returns a release function (the damper); calling it more than once is harmless.
  */
-export function holdNote(midi: number, opts: { gain?: number } = {}): () => void {
+export function holdNote(midi: number, opts: { gain?: number; voice?: 'keys' | 'pluck' } = {}): () => void {
   const ac = audio();
   const t = ac.currentTime + 0.005;
-  const peak = opts.gain ?? 0.24;
+  const voice = opts.voice ?? 'keys';
+  const peak = opts.gain ?? (voice === 'pluck' ? 0.22 : 0.24);
   const freq = midiToFreq(midi);
-  const ring = ringTime(midi);
+  const ring = ringTime(midi, voice);
 
   const g = ac.createGain();
   const f = ac.createBiquadFilter();
   f.type = 'lowpass';
-  f.frequency.setValueAtTime(Math.min(freq * 6, 7000), t);
-  f.frequency.exponentialRampToValueAtTime(Math.max(freq * 2, 400), t + ring * 0.5);
   const o1 = ac.createOscillator();
   const o2 = ac.createOscillator();
-  o1.type = 'triangle'; o2.type = 'sine';
   o1.frequency.value = freq;
   o2.frequency.value = freq;
   o2.detune.value = 6;
-  // fast attack, quick drop after the hammer strike, then a long tail
   g.gain.setValueAtTime(0.0001, t);
-  g.gain.exponentialRampToValueAtTime(peak, t + 0.008);
-  g.gain.exponentialRampToValueAtTime(peak * 0.5, t + 0.3);
+  if (voice === 'pluck') {
+    o1.type = 'sawtooth'; o2.type = 'triangle';
+    // bright pick attack, then the string mellows as it rings
+    f.frequency.setValueAtTime(Math.min(freq * 8, 9000), t);
+    f.frequency.exponentialRampToValueAtTime(Math.max(freq * 1.5, 300), t + ring * 0.4);
+    g.gain.exponentialRampToValueAtTime(peak, t + 0.006);
+    g.gain.exponentialRampToValueAtTime(peak * 0.45, t + 0.35);
+  } else {
+    o1.type = 'triangle'; o2.type = 'sine';
+    f.frequency.setValueAtTime(Math.min(freq * 6, 7000), t);
+    f.frequency.exponentialRampToValueAtTime(Math.max(freq * 2, 400), t + ring * 0.5);
+    // fast attack, quick drop after the hammer strike, then a long tail
+    g.gain.exponentialRampToValueAtTime(peak, t + 0.008);
+    g.gain.exponentialRampToValueAtTime(peak * 0.5, t + 0.3);
+  }
   g.gain.exponentialRampToValueAtTime(0.0001, t + ring);
   o1.connect(f); o2.connect(f); f.connect(g); g.connect(out());
   o1.start(t); o2.start(t);

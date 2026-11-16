@@ -365,15 +365,15 @@ fret-board, piano-keys { display: block; }
 .fb-string { stroke: var(--string); }
 .fb-num { font: 10px var(--font-mono); fill: var(--muted); text-anchor: middle; }
 .fb-hit { fill: transparent; }
-.fb-pos { cursor: pointer; outline: none; }
+.fb-pos { cursor: pointer; outline: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
 .fb-dot { fill: var(--deg, var(--note)); }
 .fb-lab { font: 600 10px var(--font-mono); fill: var(--note-ink); text-anchor: middle; pointer-events: none; }
 .fb-open { font: 10px var(--font-mono); fill: var(--muted); text-anchor: middle; }
 .fb-pos:hover .fb-hit { fill: var(--note); opacity: 0.14; }
 .fb-pos:focus-visible .fb-dot { stroke: #ffffff; stroke-width: 3; }
 .fb-pos:focus-visible .fb-hit { fill: var(--note); opacity: 0.2; }
-.fb-pos.is-sounding .fb-dot { fill: #ffffff; }
-.fb-pos.is-sounding .fb-hit { fill: #ffffff; opacity: 0.3; }
+.fb-pos.is-sounding .fb-dot, .fb-pos.is-held .fb-dot { fill: #ffffff; }
+.fb-pos.is-sounding .fb-hit, .fb-pos.is-held .fb-hit { fill: #ffffff; opacity: 0.3; }
 
 .pk { display: block; width: 100%; max-width: 460px; min-width: 300px; height: auto; }
 .pk-key { cursor: pointer; outline: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
