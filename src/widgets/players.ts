@@ -3,6 +3,7 @@ import { ROOTS, parseNote, pc, pretty, romanToChord, type KeyChord } from '../li
 import { click, drum, now, playChord, playNote, scheduler, type Drum } from '../lib/audio';
 import { Widget, button, field, h, select } from './dom';
 import { rootMidi } from './explorers';
+import { SoundChoice } from './sound';
 import { t } from './strings';
 
 export const PROGRESSIONS: { id: string; numerals: string }[] = [
@@ -38,6 +39,7 @@ export class ProgressionPlayer extends Widget {
     const editable = this.hasAttribute('editable');
     const presets = this.hasAttribute('presets');
     let chords: KeyChord[] = [];
+    const sound = new SoundChoice();
 
     const chips = h('div', { class: 'pp-chords' });
     const err = h('p', { class: 'w-error', role: 'alert', hidden: true });
@@ -68,13 +70,13 @@ export class ProgressionPlayer extends Widget {
         const beatDur = 60 / tempo;
         if (beat === 0) {
           playNote(rootMidi(ch.root, 36), { when: time, voice: 'bass', dur: beatDur * beats * 0.95 });
-          playChord(voice(ch), { when: time, voice: 'pluck', dur: beatDur * beats, gain: 0.2 });
+          playChord(voice(ch), { when: time, voice: sound.voice, dur: beatDur * beats, gain: 0.2 });
           window.setTimeout(() => {
             if (!this.stop) return;
             chips.querySelectorAll('.pp-chord').forEach((e, j) => e.classList.toggle('is-current', j === idx));
           }, Math.max(0, (time - now()) * 1000));
         } else {
-          playChord(voice(ch), { when: time, voice: 'pluck', dur: beatDur * 1.2, gain: 0.09 });
+          playChord(voice(ch), { when: time, voice: sound.voice, dur: beatDur * 1.2, gain: 0.09 });
         }
         click(time, false, true);
       });
@@ -87,6 +89,7 @@ export class ProgressionPlayer extends Widget {
         v => { numerals = v.split(' '); input.value = v; update(); })),
       (editable || presets) && field(t('edit'), input),
       h('label', { class: 'w-field' }, h('span', { class: 'w-label' }, `${t('tempo')}: `, tempoOut, ` ${t('bpm')}`), tempoIn),
+      this.hasAttribute('sound-switch') && sound.field(),
       h('div', { class: 'w-actions' }, playBtn),
     );
     this.append(controls, chips, err);
@@ -104,7 +107,7 @@ export class ProgressionPlayer extends Widget {
         type: 'button', class: 'pp-chord',
         onClick: () => {
           playNote(rootMidi(ch.root, 36), { voice: 'bass', dur: 1.6 });
-          playChord(voice(ch), { voice: 'pluck', dur: 1.8 });
+          playChord(voice(ch), { voice: sound.voice, dur: 1.8 });
         },
       }, h('span', { class: 'pp-num' }, pretty(ch.numeral)), h('span', { class: 'pp-sym' }, pretty(ch.symbol)))));
       if (this.stop && !chords.length) halt();
@@ -257,7 +260,7 @@ export class BeatGrid extends Widget {
     this.append(
       h('div', { class: 'w-controls' },
         h('label', { class: 'w-field' }, h('span', { class: 'w-label' }, `${t('tempo')}: `, out, ` ${t('bpm')}`), slider),
-        h('div', { class: 'w-actions' }, btn, clearBtn)),
+        h('div', { class: 'w-actions' }, clearBtn, btn)),
       h('div', { class: 'w-scroll' }, table));
   }
 }

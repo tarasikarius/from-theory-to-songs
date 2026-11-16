@@ -8,7 +8,8 @@
     "build": "node scripts/check-parity.mjs && astro build",
     "preview": "astro preview",
     "check": "astro check",
-    "test": "vitest run"
+    "test": "vitest run",
+    "samples": "node scripts/build-samples.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^8.0.3",

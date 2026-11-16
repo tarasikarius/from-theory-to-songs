@@ -7,6 +7,7 @@ import { now, playChord, playNote, playSequence } from '../lib/audio';
 import { Widget, button, field, h, pick, select, shuffle } from './dom';
 import { intervalTarget, rootMidi } from './explorers';
 import { voice } from './players';
+import { SoundChoice } from './sound';
 import { t } from './strings';
 
 /** Interval ids used by the trainers: every simple interval except the unison. */
@@ -18,6 +19,7 @@ interface EarQ { answer: string; play: () => void }
 
 export class EarTrainer extends Widget {
   build() {
+    const sound = new SoundChoice();
     const mode = this.attr('mode', 'intervals');
     const defaults: Record<string, string[]> = {
       intervals: EAR_INTERVALS, chords: ['maj', 'min', 'dim', 'aug'],
@@ -40,21 +42,21 @@ export class EarTrainer extends Widget {
     const playItem = (id: string, root: number, rootNote: Note) => {
       if (mode === 'intervals') {
         const pair = [root, root + simpleInterval(id).semis];
-        if (direction === 'together') playChord(pair, { voice: 'keys', strum: 0, dur: 1.8 });
-        else playSequence(direction === 'down' ? pair.reverse() : pair, 0.55, { voice: 'keys', dur: 1.1 });
+        if (direction === 'together') playChord(pair, { voice: sound.voice, strum: 0, dur: 1.8 });
+        else playSequence(direction === 'down' ? pair.reverse() : pair, 0.55, { voice: sound.voice, dur: 1.1 });
       } else if (mode === 'chords') {
-        playChord(chordMidi(chordNotes(rootNote, id), 3), { voice: 'keys', dur: 2 });
+        playChord(chordMidi(chordNotes(rootNote, id), 3), { voice: sound.voice, dur: 2 });
       } else if (mode === 'scales') {
         const notes = scaleNotes(rootNote, id);
         const midis = notes.map(n => root + ((pc(n) - pc(rootNote) + 12) % 12));
         midis.push(root + 12);
-        playSequence(midis, 0.3, { voice: 'pluck' });
+        playSequence(midis, 0.3, { voice: sound.voice });
       } else {
         const t0 = now() + 0.05;
         id.split(' ').forEach((num, i) => {
           const ch = romanToChord(num, rootNote);
           playNote(rootMidi(ch.root, 36), { when: t0 + i * 1.1, voice: 'bass', dur: 1.05 });
-          playChord(voice(ch), { when: t0 + i * 1.1, voice: 'pluck', dur: 1.2 });
+          playChord(voice(ch), { when: t0 + i * 1.1, voice: sound.voice, dur: 1.2 });
         });
       }
     };
@@ -119,8 +121,8 @@ export class EarTrainer extends Widget {
         mode === 'intervals' && field(t('direction'), select(
           [{ value: 'up', label: t('up') }, { value: 'down', label: t('down') }, { value: 'together', label: t('together') }],
           direction, v => { direction = v; })),
-        h('div', { class: 'w-actions' }, playBtn,
-          button(t('reset'), reset))),
+        sound.field(),
+        h('div', { class: 'w-actions' }, button(t('reset'), reset), playBtn)),
       answers, feedback, score);
   }
 }

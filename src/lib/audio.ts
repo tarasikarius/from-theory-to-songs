@@ -1,5 +1,8 @@
-// Tiny Web Audio synth: plucked string, keys, drone, metronome click and drum hits. No samples.
+// Web Audio engine: recorded samples for the pluck (guitar), keys (piano) and bass voices, the
+// kick, snare and hat, and the riff chug (each with a synth fallback until it loads), and a tiny synth
+// for pad, drone and metronome click.
 import { midiToFreq } from './theory';
+import sampleManifest from '../data/samples.json';
 
 let ctx: AudioContext | null = null;
 let master: GainNode | null = null;
@@ -24,6 +27,104 @@ export const now = () => audio().currentTime;
 
 export type Voice = 'pluck' | 'keys' | 'bass' | 'pad';
 
+// ---- Samples -------------------------------------------------------------------------------
+// public/samples/<set>/<id>.mp3, listed in src/data/samples.json (both written by scripts/build-samples.mjs).
+// Pitched sets are named by MIDI number (clean/40.mp3), the drum kit by hit (drums/kick.mp3).
+// A set is used only once every file in it has loaded, so a widget never mixes sample and synth sounds.
+
+type SampleId = number | string;
+interface Sample { buffer: AudioBuffer; offset: number }
+interface SampleSet { ids: SampleId[]; midis: number[]; samples: Map<SampleId, Sample>; state: 'idle' | 'loading' | 'ready' | 'failed' }
+
+/** Which sample set plays which voice. */
+const VOICE_SET: Partial<Record<Voice, string>> = { pluck: 'clean', keys: 'piano', bass: 'bass' };
+/** The set that holds drum hits, named by Drum id. */
+const DRUM_SET = 'drums';
+/**
+ * Drum hits are levelled to a -6 dB peak; these set the balance of the kit, close to the synth's
+ * (kick 0.9, snare about 0.6, hat 0.16 peak). Set by calculation, not by ear.
+ */
+const DRUM_GAIN: Record<string, number> = { kick: 1.8, snare: 1.3, hat: 0.35 };
+/** The set that holds palm-muted riff notes, and their level (synth chug peaks at 0.35). Set by calculation, not by ear. */
+const CHUG_SET = 'chug';
+const CHUG_GAIN = 1.7;
+/** Samples are levelled to about -20 dB RMS (peaks at most -6 dB); this brings them up to the synth voices. */
+const SAMPLE_GAIN = 4;
+
+const sampleSets = new Map<string, SampleSet>(
+  Object.entries(sampleManifest as Record<string, SampleId[]>).map(([name, ids]) => [
+    name,
+    { ids, midis: ids.filter((id): id is number => typeof id === 'number'), samples: new Map(), state: 'idle' },
+  ]),
+);
+
+async function loadSet(name: string, set: SampleSet): Promise<void> {
+  set.state = 'loading';
+  try {
+    const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+    // an offline context can decode before the first user gesture, without starting audio
+    const decoder = new OfflineAudioContext(1, 1, 44100);
+    await Promise.all(set.ids.map(async id => {
+      const res = await fetch(`${base}/samples/${name}/${id}.mp3`);
+      if (!res.ok) throw new Error(`sample ${name}/${id}: HTTP ${res.status}`);
+      const buffer = await decoder.decodeAudioData(await res.arrayBuffer());
+      // skip the encoder's leading padding so the attack starts on time
+      const d = buffer.getChannelData(0);
+      let peak = 0;
+      for (let i = 0; i < d.length; i++) peak = Math.max(peak, Math.abs(d[i]));
+      let i = 0;
+      while (i < d.length && Math.abs(d[i]) < peak * 0.05) i++;
+      set.samples.set(id, { buffer, offset: Math.max(0, i / buffer.sampleRate - 0.003) });
+    }));
+    set.state = 'ready';
+  } catch (err) {
+    set.state = 'failed'; // the synth keeps playing
+    console.warn('Samples not loaded, using the synth:', err);
+  }
+}
+
+/** Start loading every sample set in the background. Safe to call repeatedly and before any user gesture. */
+export function warmSamples(): void {
+  if (typeof OfflineAudioContext === 'undefined') return;
+  for (const [name, set] of sampleSets) if (set.state === 'idle') void loadSet(name, set);
+}
+
+/** True when the voice will play from samples right now. */
+export function hasSamples(voice: Voice): boolean {
+  const name = VOICE_SET[voice];
+  return !!name && sampleSets.get(name)?.state === 'ready';
+}
+
+/** Nearest recorded note and the playback rate that shifts it to `midi`. */
+export function nearestSample(midis: number[], midi: number): { base: number; rate: number } {
+  let base = midis[0];
+  for (const m of midis) if (Math.abs(m - midi) < Math.abs(base - midi)) base = m;
+  return { base, rate: Math.pow(2, (midi - base) / 12) };
+}
+
+/** Start a sample at time t. Returns the nodes and how long it rings, or null if the voice has no loaded samples. */
+function startSample(voice: Voice, midi: number, t: number, gain: number): { src: AudioBufferSourceNode; g: GainNode; ring: number } | null {
+  const name = VOICE_SET[voice];
+  return name ? startFromSet(name, midi, t, gain * SAMPLE_GAIN) : null;
+}
+
+/** Start the nearest sample of a pitched set at time t, shifted to `midi`; null if the set has not loaded. */
+function startFromSet(name: string, midi: number, t: number, gain: number): { src: AudioBufferSourceNode; g: GainNode; ring: number } | null {
+  const set = sampleSets.get(name);
+  if (!set || set.state !== 'ready' || !set.midis.length) return null;
+  const { base, rate } = nearestSample(set.midis, midi);
+  const s = set.samples.get(base)!;
+  const ac = audio();
+  const src = ac.createBufferSource();
+  src.buffer = s.buffer;
+  src.playbackRate.value = rate;
+  const g = ac.createGain();
+  g.gain.setValueAtTime(gain, t);
+  src.connect(g).connect(out());
+  src.start(t, s.offset);
+  return { src, g, ring: (s.buffer.duration - s.offset) / rate };
+}
+
 export interface NoteOpts { when?: number; dur?: number; voice?: Voice; gain?: number }
 
 export function playNote(midi: number, opts: NoteOpts = {}): void {
@@ -33,6 +134,15 @@ export function playNote(midi: number, opts: NoteOpts = {}): void {
   const dur = opts.dur ?? 1.2;
   const peak = (opts.gain ?? 0.22) * (voice === 'bass' ? 1.4 : 1);
   const freq = midiToFreq(midi);
+
+  const sample = startSample(voice, midi, t, peak);
+  if (sample) {
+    // the recording decays on its own; damp it at the end of the note
+    sample.g.gain.setTargetAtTime(0, t + dur, 0.05);
+    sample.src.stop(t + dur + 0.4);
+    return;
+  }
+  warmSamples();
 
   const g = ac.createGain();
   const f = ac.createBiquadFilter();
@@ -92,6 +202,20 @@ export function holdNote(midi: number, opts: { gain?: number; voice?: 'keys' | '
   const voice = opts.voice ?? 'keys';
   const peak = opts.gain ?? (voice === 'pluck' ? 0.22 : 0.24);
   const freq = midiToFreq(midi);
+
+  const sample = startSample(voice, midi, t, peak);
+  if (sample) {
+    let damped = false;
+    return () => {
+      if (damped) return;
+      damped = true;
+      const r = Math.max(ac.currentTime, t + 0.03);
+      if (r >= t + sample.ring) return; // already rung out
+      sample.g.gain.setTargetAtTime(0, r, 0.04);
+      sample.src.stop(r + 0.3);
+    };
+  }
+  warmSamples();
   const ring = ringTime(midi, voice);
 
   const g = ac.createGain();
@@ -205,9 +329,26 @@ function noise(): AudioBuffer {
 
 export type Drum = 'kick' | 'snare' | 'hat' | 'chug';
 
+/** Play a recorded drum hit at time t. Returns false when the kit has not loaded or has no such hit. */
+function drumSample(kind: Drum, t: number): boolean {
+  const set = sampleSets.get(DRUM_SET);
+  const s = set?.state === 'ready' ? set.samples.get(kind) : undefined;
+  if (!s) return false;
+  const ac = audio();
+  const src = ac.createBufferSource();
+  src.buffer = s.buffer;
+  const g = ac.createGain();
+  g.gain.value = DRUM_GAIN[kind] ?? 1;
+  src.connect(g).connect(out());
+  src.start(t, s.offset);
+  return true;
+}
+
 export function drum(kind: Drum, when: number, midi = 40): void {
   const ac = audio();
   const t = Math.max(when, ac.currentTime);
+  if (kind === 'chug' ? startFromSet(CHUG_SET, midi, t, CHUG_GAIN) : drumSample(kind, t)) return;
+  warmSamples();
   const g = ac.createGain();
   g.connect(out());
   if (kind === 'kick') {
